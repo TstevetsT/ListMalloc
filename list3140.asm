@@ -1,5 +1,7 @@
 ; nasm -f elf32 -g list3140.asm
 ; gcc -o main main.c list3140.o malloc3140.o -nostdlib -nodefaultlibs -fno-builtin -nostartfiles
+;test commit I am changing here to test
+
 
 BITS 32					; USE32
 
