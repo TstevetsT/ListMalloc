@@ -5,13 +5,7 @@
 	{
 		int * buffer;
 
-		/*get a initial memory block*/
-		buffer = (int*) malloc (10*sizeof(int));
-		if (buffer==NULL)
-		{
-			printf("Error allocating memory!");
-			exit (1);
-		}
+// i deleted a whole bunch of stuff here
 
 		/*get more memory with realloc*/
 		buffer = (int*) realloc (buffer, 20*sizeof(int));
