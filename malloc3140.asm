@@ -1,5 +1,3 @@
-; Leander Metcalf & Shannon Zolk
-; CS3140 Low Level Programming II
 ; 14 March 2013
 ; Assignment 6 malloc3140.asm
 
