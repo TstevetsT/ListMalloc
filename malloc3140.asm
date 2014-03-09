@@ -1,3 +1,8 @@
+; Leander Metcalf & Shannon Zolk
+; CS3140 Low Level Programming II
+; 14 March 2013
+; Assignment 6 malloc3140.asm
+
 ; nasm -f elf32 -g malloc3140.asm
 ; gcc -o main main.c list3140.o malloc3140.o -nostdlib -nodefaultlibs -fno-builtin -nostartfiles
 
@@ -16,30 +21,31 @@ global l_free		;void l_free(void *ptr)
 l_malloc:
 	push ebp
 	mov ebp, esp
-	push edi
 	push ebx
+	
+	cmp [BrkInfo.InitFlag], 0
+	jne .skipCreateHeap
+	mov [BrkInfo.InitFlag], 1
 	
 	mov	eax, 45		;sys_brk
 	xor	ebx, ebx
 	int	80h		;sets initial break
+	cmp	eax, 0
+	jl	.error	;exit, if error
+	push eax		;push starting location for heap
 	
-	add	ebx, 40000	;number of bytes to be reserved
+	add	ebx, HEAPMAX	;number of bytes to be reserved
 	mov	eax, 45		;sys_brk
-	int	80h		;sets final break
-	
+	int	80h		;sets final break	
 	cmp	eax, 0
 	jl	.error	;exit, if error 
-		mov	edi, eax	;EDI = highest available address
-		sub	edi, 4		;pointing to the last DWORD  
-		mov	ecx, 4096	;number of DWORDs allocated
-		xor	eax, eax	;clear eax
-		std			;backward
-		rep	stosd		;repete for entire allocated area
-		cld			;put DF flag to normal state
-		mov eax, edi
-		
+	
+	pop eax
+	;logic for setting header for break
+	;create a function for this maybe?
+	
+	
 	pop ebx
-	pop edi
 	mov esp, ebp
 	pop ebp
 	ret
@@ -50,6 +56,12 @@ l_malloc:
 	pop edi
 	mov esp, ebp
 	pop ebp
+	ret
+	
+	.skipCreateHeap:
+	;logic for making changes to an already intialized heap
+	;create a function for this maybe?
+	
 	ret
 
 ;allocate a contiguous block of memory capable of
@@ -93,3 +105,11 @@ l_free:
 	mov esp, ebp
 	pop ebp
 	ret
+	
+section .data
+struc BrkInfo
+	.Init:	RESB 1
+endstruc
+
+section .rodata
+HEAPMAX dd 0x186A0	
