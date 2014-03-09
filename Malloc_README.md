@@ -9,22 +9,23 @@ SYNOPSIS
        void *sbrk(intptr_t increment);
        
 DESCRIPTION
-        Allocated Block
+
+        Allocated Blocks
        ---------------------
-       ||  Size + Status  ||
+       ||  Size + Status  ||	4 Bytes Lowest Byte is used for Flags
        ---------------------
-       ||  User Space     ||
+       ||  User Space     ||  Space available to the calling process
        ---------------------
        
-             Free Block
+            Free Blocks
        ----------------------
-       ||  Size + Status    ||
+       ||  Size + Status    ||  4 Bytes Lowest Byte is used for Flags
        ----------------------
-       ||   Forward PTR  ||
+       ||  Forward PTR      ||  4 Byte Pointer to the block prior
        ----------------------
-       ||  Back PTR        ||
+       ||  Back PTR         ||  4 Byte Pointer to the next block
        ----------------------
-       ||  Free Space       ||
+       ||  Free Space       ||  Available Space for allocation
        ----------------------
        
  
