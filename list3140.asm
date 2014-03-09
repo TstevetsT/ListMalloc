@@ -146,7 +146,7 @@ removeItem:
 	jmp .top
 	
 	.found:
-	cmp dw [ebx + _List3140.data], 0x0  ;is data > 0?
+	cmp [ebx + _List3140.data], dword 0x0  ;is data > 0?
 	je .nullFound
 	freeNode	;sets the free flag to yes
 	mov eax, [ebx + _List3140.data]
