@@ -1,4 +1,4 @@
-BRK(2)                     Linux Programmer's Manual                    BRK(2)
+MALLOC(2)                     Linux Programmer's Manual                    MALLOC(2)
 
 NAME
 
@@ -20,7 +20,7 @@ DESCRIPTION
        Allocated block headers are 4 bytes in size. The minimum block
        allocation is 4 bytes. With no space for user data. This will keep 
        free blocks aligned in the heap. If any blocks are 4 bytes in size
-       it will automatically be added to the allocation returned.
+       it will automatically be added to the allocation.
        
        Size (4 Bytes)
        Size of allocated blocks can be up to a default 100,000 bytes in size 
@@ -41,8 +41,7 @@ DESCRIPTION
        
  NOTES
  
-       Avoid using brk() and sbrk(): the malloc(3) memory  allocation  package
-       is the portable and comfortable way of allocating memory.
-
-       Various  systems  use various types for the argument of sbrk().  Common
-       are int, ssize_t, ptrdiff_t, intptr_t.
+       The priority for malloc is ensuring the maximum amount of space available
+       for the calling process/function.  Usable space has more priority than
+       speed, and this resulted in a smaller header but more overhead to process
+       changes to the heap during coalescence (consolidating free space).

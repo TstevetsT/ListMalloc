@@ -21,9 +21,9 @@ l_malloc:
 	mov ebp, esp
 	push ebx
 	
-	cmp [BrkInfo.InitFlag], 0
+	cmp byte [BrkInfo.InitFlag], 0
 	jne .skipCreateHeap
-	mov [BrkInfo.InitFlag], 1
+	mov byte [BrkInfo.InitFlag], 1
 	
 	mov	eax, 45		;sys_brk
 	xor	ebx, ebx
@@ -77,14 +77,14 @@ push ebx	;preserve no clobber register
 	
 xor eax, eax
 	
-cmp [ebp + 12], 0  ;checks user input > 0
+cmp [ebp + 12], dword 0  ;checks user input > 0
 jg .intSize
-cmp [ebp + 8], 0   ;checks user input > 0
+cmp [ebp + 8], dword 0   ;checks user input > 0
 jg .intNmemb
 jmp .done	;returns NULL on faliure or 0
 	
 .intSize:
-	push [ebp + 12]	;uses int size to allocate a block of memory
+	push dword [ebp + 12]	;uses int size to allocate a block of memory
 	call l_malloc	;call l_malloc before zeroizing
 	cmp eax, 0	;checks for error
 	je .error
@@ -101,7 +101,7 @@ jmp .done	;returns NULL on faliure or 0
 		jmp .done	;finished!
 	
 .intNmemb:
-	push [ebp + 8]	;uses int nmemb to allocate a block of memory
+	push dword [ebp + 8]	;uses int nmemb to allocate a block of memory
 	call l_malloc 	;call l_malloc before zeroizing
 	cmp eax, 0	;checks for error
 	je .error
@@ -155,7 +155,7 @@ l_free:
 	
 section .data
 struc BrkInfo
-	.Init:	RESB 1
+	.InitFlag:	RESB 1
 endstruc
 
 section .rodata
