@@ -96,7 +96,7 @@ jmp .done	;returns NULL on faliure or 0
 		mov [eax * 4 + ecx], dword 0  ;moves zeros into current mem ptr
 		inc ecx		;increment counter
 		cmp ecx, ebx	;check and see if we have gone through allocation
-		jl .SizeTop	;if not then continue to put zeroes
+		jl .sizeTop	;if not then continue to put zeroes
 		pop eax		;restore memory address ptr
 		jmp .done	;finished!
 	
@@ -109,11 +109,11 @@ jmp .done	;returns NULL on faliure or 0
 	xor ecx, ecx	;initialize counter to 0
 	mov ebx, [ebp + 8]  ;moves the size requested into ebx
 	
-	.sizeTop:
+	.nmembTop:
 		mov [eax * 4 + ecx], dword 0  ;moves zeros into current mem ptr
 		inc ecx		;increment counter
 		cmp ecx, ebx	;check and see if we have gone through allocation
-		jl .SizeTop	;if not then continue to put zeroes
+		jl .nmembTop	;if not then continue to put zeroes
 		pop eax		;restore memory address ptr
 		jmp .done	;finished!
 	
