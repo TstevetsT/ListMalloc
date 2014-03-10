@@ -21,45 +21,24 @@ l_malloc:
 	mov ebp, esp
 	push ebx
 	
-	cmp byte [BrkInfo.InitFlag], 0
+	cmp byte [BrkInfo.InitFlag], 0   ;Check if heap is created
 	jne .skipCreateHeap
-	mov byte [BrkInfo.InitFlag], 1
+	call CreateHeap           ;Heap is created and eax holds 
+	.skipCreateHeap:
 	
-	mov	eax, 45		;sys_brk
-	xor	ebx, ebx
-	int	80h		;sets initial break
-	cmp	eax, 0
-	jl	.error	;exit, if error
-	push eax		;push starting location for heap
-	
-	add	ebx, HEAPMAX	;number of bytes to be reserved
-	mov	eax, 45		;sys_brk
-	int	80h		;sets final break	
-	cmp	eax, 0
-	jl	.error	;exit, if error 
-	
-	pop eax
-	;logic for setting header for break
-	;create a function for this maybe?
-	
-	
+
+
 	pop ebx
 	mov esp, ebp
 	pop ebp
 	ret
-	
+
 	.error:
 	xor eax, eax
 	pop ebx
 	pop edi
 	mov esp, ebp
 	pop ebp
-	ret
-	
-	.skipCreateHeap:
-	;logic for making changes to an already intialized heap
-	;create a function for this maybe?
-	
 	ret
 
 ;allocate a contiguous block of memory capable of
@@ -149,6 +128,41 @@ l_free:
 	push ebp
 	mov ebp, esp
 	
+	mov esp, ebp
+	pop ebp
+	ret
+
+CreateHeap:
+	push ebp
+	mov ebp, esp
+	push ebx
+	mov byte [BrkInfo.InitFlag], 1   
+	
+	mov	eax, 45		;sys_brk
+	xor	ebx, ebx
+	int	80h		;sets initial break
+	cmp	eax, 0
+	jl	.error	;exit, if error
+	push eax		;push starting location for heap
+	
+	add	ebx, HEAPMAX	;number of bytes to be reserved
+	mov	eax, 45		;sys_brk
+	int	80h		;sets final break	
+	cmp	eax, 0
+	jl	.error	;exit, if error 
+	
+	pop eax
+	mov [eax], HEAPMAX+1
+
+	pop ebx
+	mov esp, ebp
+	pop ebp
+	ret
+	
+	.error:
+	xor eax, eax
+	pop ebx
+	pop edi
 	mov esp, ebp
 	pop ebp
 	ret
