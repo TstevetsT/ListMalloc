@@ -33,8 +33,8 @@ l_malloc:
 	mov edi, [ebp + 8]	;Holds User Requested size
 	add edi, 4		;adds header space to user size
 	mov esi, [Heap.Start]	;CurrentAddress
-	mov ebx,  
-	.loop
+	;mov ebx,  					************************** not sure what's missing here?
+	.loop:
 		mov eax, [Heap.Stop]
 		sub eax, 4		;Ensures last 4 bytes are not allocated
 		cmp esi, eax
@@ -52,7 +52,7 @@ l_malloc:
 	;BestFit
 		
 	;FixHeaders
-	.NextBlock
+	.NextBlock:
 		mov eax, [esi]	;Saves Current Block Size in eax
 		and eax, 0xFE	;Masks Out the In Use Bit
 		add esi, eax 	;CurrentAddress+CurrentBlockSize=NextBlockAdd
@@ -194,7 +194,7 @@ l_free:
 	cmp eax, [Heap.Start + Heap.Size]
 	jge .done
 	add ebx, [eax-1]	;moves to next block by adding size - status
-	mov cl, [al]			;moves lowest byte into cl
+	movzx ecx, byte [eax]			;moves lowest byte into cl
 	and cl, 0x01			;masks out all the size bits and leaves free/used flag
 	cmp cl, 0					;is the current block free?
 	je .foundFreeBlock
@@ -205,7 +205,7 @@ l_free:
 	
 	;eax was free so now we check and see if ebx is free
 	.foundFreeBlock:
-		mov cl, [bl]	;moves lowest byte into cl
+		movzx ecx, byte [ebx]	;moves lowest byte into cl
 		and cl, 0x01  ;masks out all the size bits and leaves free/used flag
 		cmp cl, 0			;is the current block free?
 		
@@ -221,7 +221,7 @@ l_free:
 		;if the block was not free move the *ptr into eax
 		.go2NextBlock:
 			mov eax, ebx	
-			jmp .top
+			jmp .mergeFreeBlocks
 	
 	.done:
 	pop ebx
