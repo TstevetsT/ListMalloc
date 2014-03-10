@@ -7,7 +7,7 @@
 BITS 32					; USE32
 
 global l_malloc		;void *l_malloc(unsigned int size)
-global l_calloc		;void *l_calloc(unsigned int nmemb, unsigned int size)
+global l_calloc	;void *l_calloc(unsigned int nmemb, unsigned int size)
 global l_realloc	;void *l_realloc(void *ptr, unsigned int size)
 global l_free		;void l_free(void *ptr)
 
@@ -27,16 +27,16 @@ l_malloc:
 	jge .error
 	cmp byte [Heap.InitFlag], 0   ;Check if heap is created
 	jne .skipCreateHeap
-	call .CreateHeap         ;Heap created eax=start address=Heap.Start
+	call .CreateHeap      ;Heap created eax=start address=Heap.Start
 	
-	.skipCreateHeap:	;    ebx=first address after break=Heap.Stop
+	.skipCreateHeap:	;ebx=first address after break=Heap.Stop
 	mov edi, [ebp + 8]	;Holds User Requested size
 	add edi, 4		;adds header space to user size
 	mov esi, [Heap.Start]	;CurrentAddress
 	mov ebx, 0		;BestFit Address 0=No fit foune
 	.loop:
 		mov eax, [Heap.Stop]
-		sub eax, 4		;Ensures last 4 bytes are not allocated
+		sub eax, 4	;Ensures last 4 bytes are not allocated
 		cmp esi, eax
 		jge .FixHeaders
 		
@@ -52,27 +52,29 @@ l_malloc:
 	;BestFit
 		cmp ebx, 0		;Is there a prev best fit?
 		je .NewBestFit
-		cmp [ebx], [esi]		;Is Current location better than prev best fit?
+		mov eax, [ebx]		;Is current location a better
+		cmp eax, [esi]  	; fit than prev best fit?
 		jl .NewBestFit
 		jmp .NextBlock		
 		.NewBestFit:		
 		mov ebx, esi		;make current location best fit
 		jmp .NextBlock
-	;FixHeaders
+	.FixHeaders:
 		cmp ebx, 0 		;was a best fit found in heap
 		je .error
 		mov eax, [ebx]
-		add eax, 8	;If current block size is <= 8 bytes bigger than required block size
-		cmp eax, edi		;compare current block size + 8 to required block size
+		add eax, 8	;If current block size is <= 8 bytes 
+				;	bigger than required block size
+		cmp eax, edi		;compare cur size + 8 to req siz
 		jge .KeepBlockSize	;Keep block size
 		mov eax, ebx
 		mov ecx, [eax]		;copy old current block size
-		add eax, esi 		;Otherwise create new header for trailing block
+		add eax, esi 		;create new header for next blk
 		sub ecx, esi		;Calculate remaining block size
-		mov [eax], ecx		;Fills out header for trailing block
-		mov [ebx], esi		;moves requested size into user block header
+		mov [eax], ecx		;Fills header for trailing block
+		mov dword [ebx], esi	;moves req size into user header
 		.KeepBlockSize:
-			add [ebx], 1		;tags user block as in use
+			add dword [ebx], 1	;tags user block as in use
 			mov eax, ebx
 			jmp .SendPointerToUser
 	.NextBlock:
@@ -82,7 +84,7 @@ l_malloc:
 		jmp .loop
 		
 	.SendPointerToUser:
-		add eax, 4		;adjusts eax so it holds users pointer
+		add eax, 4	;adjusts eax so it holds users pointer
 	pop esi
 	pop edi
 	pop ebx
