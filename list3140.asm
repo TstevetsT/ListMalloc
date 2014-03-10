@@ -34,7 +34,7 @@ global clear		;void clear(struct _List3140 *list)
 size_list:			;used to determine the size of the struc
 struc _List3140			;defined structure
 	.free:	resb 1		;0 for yes 1 for no
-	.data:	resd 1		;integer value
+	.value:	resd 1		;integer value
 	.next:	resd 1		;* to the next value or null for end
 endstruc
 List3140Size: equ $ - size_list	;size of the data type
@@ -146,10 +146,10 @@ removeItem:
 	jmp .top
 	
 	.found:
-	cmp [ebx + _List3140.data], dword 0x0  ;is data > 0?
+	cmp [ebx + _List3140.value], dword 0x0  ;is data > 0?
 	je .nullFound
 	freeNode	;sets the free flag to yes
-	mov eax, [ebx + _List3140.data]
+	mov eax, [ebx + _List3140.value]
 	mov [ebp + 16], eax	;moves the value into *val
 	mov eax, 1	;returns 1 on success
 	jmp .done
@@ -186,7 +186,6 @@ clear:
 
 ;Initialized Data
 section .data
- 
 nonodes equ     0x100           ; max number of nodes
 onens   equ     0x8             ; space per node (_one_ _n_ode _s_pace)
 maxnode equ     nodesp+((nonodes-1) * onens)+1
@@ -195,7 +194,6 @@ listb   dd      0x0             ; pointer to list b
  
 ;Uninitialized Data 
 section .bss
-
 nodesp: resd    nonodes*3   ; reserve space for the nodes
 tempa:  resd    1
 tempb:  resd    1
