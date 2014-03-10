@@ -4,14 +4,14 @@
 
 BITS 32					; USE32
 
-global listNew	;struct _List3140 *listNew()
+global listNew		;struct _List3140 *listNew()
 global listInit		;int listInit(struct _List3140 *list)
 global addHead		;int addHead(struct _List3140 *list, int val)
-global removeHead		;int removeHead(struct _List3140 *list, int *val)
+global removeHead	;int removeHead(struct _List3140 *list, int *val)
 global addTail		;int addTail(struct _List3140 *list, int val)
-global removeTail		;int removeTail(struct _List3140 *list, int *val)
+global removeTail	;int removeTail(struct _List3140 *list, int *val)
 global itemAt		;int itemAt(struct _List3140 *list, unsigned int n, int *val)
-global removeItem		;int removeItem(struct _List3140 *list, unsigned int n, int *val)
+global removeItem	;int removeItem(struct _List3140 *list, unsigned int n, int *val)
 global size		;unsigned int size(struct _List3140 *list)
 global clear		;void clear(struct _List3140 *list)
 
