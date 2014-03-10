@@ -192,11 +192,19 @@ removeItem:
 	push edi
 	push esi
 	
+	cmp [ebp + 16], dword 0
+	je .nullFound
+	
 	mov eax, [ebp + 8]	;moves the *list into eax
 	lea edi, [HOT]		;heads or tails struc
+	cmp [ebp + 12], 1	;is there only one node? if so just free it
+	jle .free
+	
+	;get the size of the list and find the middle so we know
+	; which end to start on either heads or tails
 	mov ebx, [edi + _HeadsOrTails.size]
 	shr ebx, 1 ; divides by 2
-	cmp ebx, [ebp + 12]
+	cmp ebx, [ebp + 12] ;compare the middle value with index
 	jle .tailSearch
 	
 	.headSearch:
@@ -218,15 +226,15 @@ removeItem:
 		mov [ebp + 16], ebx			;moves the indexed value into *val
 	
 	.cleanup:
+		;does some cleanup of the list to make sure the links still connect
 		mov edi, [eax + _List3140.prev]
 		mov esi, [eax + _List3140.next]
 		mov [edi + _List3140.next], esi
 		mov [esi + _List3140.prev], edi
 		
+	.free:
 		push eax
 		call l_free
-		cmp eax, 0
-		je .nullFound
 		mov eax, 1				;returns 1 on success
 		jmp .done
 	

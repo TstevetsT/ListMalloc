@@ -237,19 +237,14 @@ l_free:
 		
 		;if ebx is allocated go to the next block otherwise add the two sizes
 		;together and replace the size field in eax
-		jne .go2NextBlock
+		jne .mergeFreeBlocks
 			mov ecx, [ebx]		;moves ebx size value into ecx
 			mov edx, [eax]		;moves eax size value into edx
 			add ecx, edx		;adds both sizes together
 			mov [eax], ecx		;moves the new size value into eax
 			jmp .mergeFreeBlocks
-		
-		;if the block was not free move the *ptr into eax
-		.go2NextBlock:
-			mov eax, ebx	
-			jmp .mergeFreeBlocks
 	
-	.done:
+	.done
 	pop ebx
 	mov esp, ebp
 	pop ebp
@@ -262,7 +257,7 @@ struc Heap
 	.Stop: RESD 1		;First Address After Heap
 	.Size: RESD 1		;Heap Size
 	.InitFlag: RESB 1 	;Flag indicates whether a heap has been created
-endstruc
+endstruc ; struc is 13 bytes in size
 
 section .rodata
-HEAPMAX dd 0x186A0	
+HEAPMAX dd 0x186A0	;reserve 100,000 bytes at onset
