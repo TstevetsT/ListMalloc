@@ -2,7 +2,7 @@
 ; gcc -o main main.c list3140.o malloc3140.o -nostdlib -nodefaultlibs -fno-builtin -nostartfiles
 
 
-BITS 32					; USE32
+BITS 32			; USE32
 
 global listNew		;struct _List3140 *listNew()
 global listInit		;int listInit(struct _List3140 *list)
@@ -135,13 +135,22 @@ removeItem:
 	mov ebp, esp
 	push ebx
 	
-	mov ebx, [ebp + 8]
-
-	cmp dw [ebx + _List3140.data], 0x0
+	xor eax, eax
+	mov ebx, [ebp + 8]	;moves the *list into ebx
+	
+	.top:
+	cmp eax, [ebp + 12]	;checks index against current location
+	je .found
+	mov ebx, [ebx + _List3140.next]	;moves through list until at correct index
+	inc eax
+	jmp .top
+	
+	.found:
+	cmp dw [ebx + _List3140.data], 0x0  ;is data > 0?
 	je .nullFound
-	freeNode
+	freeNode	;sets the free flag to yes
 	mov eax, [ebx + _List3140.data]
-	mov [ebp + 16], eax
+	mov [ebp + 16], eax	;moves the value into *val
 	mov eax, 1	;returns 1 on success
 	jmp .done
 	
