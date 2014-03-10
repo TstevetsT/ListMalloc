@@ -11,9 +11,9 @@ SYNOPSIS
 DESCRIPTION
 
         Allocated Blocks
-       ---------------------
+       ---------------------    <-- Memory Ptr of Header
        ||  Size + Status  ||    4 Bytes Lowest Byte is used for Flags
-       ---------------------
+       ---------------------    <-- Memory Ptr Addr Returned
        ||  User Space     ||    Space available to the calling process
        ---------------------
        
