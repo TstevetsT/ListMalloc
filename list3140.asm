@@ -94,10 +94,9 @@ addHead:
 	lea edi, [HOT]		;heads or tails struc
 	
 	;check and see if this is the first node
-	cmp [ebx + _List3140.prev], dword 0 ;if the value is null that means there is no head
+	cmp [edi + _HeadsOrTails.head], dword 0 ;if the value is null that means there is no head
 	jne .addNode
 	.noHead:
-		mov [ebx + _List3140.prev], ebx ;sets current node as head
 		mov [edi + _HeadsOrTails.head], ebx ;head location tracker
 		mov [edi + _HeadsOrTails.tail], ebx ;tail location tracker
 		jmp .addValue
@@ -135,6 +134,58 @@ addHead:
 removeHead:
 	push ebp
 	mov ebp, esp
+	push ebx
+	push edi
+	push esi
+	
+	cmp [ebp + 12], dword 0	;check for null value in arg [2]
+	je .nullFound
+	
+	;mov eax, [ebp + 8]	;moves the arg [1] into eax
+	lea eax, [HOT]
+	mov eax, [eax + _HeadsOrTails.head]
+
+;moves the value at index into ebx and then into arg [2]
+	mov ebx, [eax + _List3140.value]
+	mov [ebp + 12], ebx
+
+;is there no tail? is so just free the node
+	cmp [eax + _List3140.next], dword 0
+	je .free
+
+	;does some cleanup of the list to make sure the links still connect
+	.cleanup:
+		mov ebx, [eax + _List3140.next]	;passes next node to ebx to create new head
+		mov [ebx + _List3140.prev], dword 0	;removes link to previous head
+		mov [HOT + _HeadsOrTails.head], ebx
+		
+	.free:
+		push eax
+		call l_free
+		mov eax, 1	;returns 1 on success
+		lea edi, [HOT]
+		sub [edi + _HeadsOrTails.size], dword 1
+		jmp .done
+	
+	.nullFound:
+		xor eax, eax	;returns 0 on finding NULL
+	
+	.done:
+	pop esi
+	pop edi
+	pop ebx
+	mov esp, ebp
+	pop ebp
+	ret
+
+;return the size of list
+;unsigned int size(struct _List3140 *list)
+size:
+	push ebp
+	mov ebp, esp
+	
+	lea eax, [HOT]
+	mov eax, [eax + _HeadsOrTails.size]
 	
 	mov esp, ebp
 	pop ebp
@@ -196,12 +247,14 @@ removeItem:
 	je .nullFound
 	
 	mov eax, [ebp + 8]	;moves the *list into eax
+	mov ebx, [eax + _List3140.value]	;moves the value at index into ebx
+	mov [ebp + 16], ebx			;moves the indexed value into *val
+
 	lea edi, [HOT]		;heads or tails struc
-	cmp [ebp + 12], 1	;is there only one node? if so just free it
+	cmp [ebp + 12], dword 1	;is there only one node? if so just free it
 	jle .free
 	
-	;get the size of the list and find the middle so we know
-	; which end to start on either heads or tails
+	;starts from the middle of the list and moves forward or backwards
 	mov ebx, [edi + _HeadsOrTails.size]	;size of list for comparison
 	shr ebx, 1 				;divides by 2
 	cmp ebx, [ebp + 12] 			;compare the middle value with index
@@ -209,24 +262,20 @@ removeItem:
 	
 	.headSearch:
 		cmp ebx, [ebp + 12]		;checks index against current location
-		je .found
+		je .cleanup
 		mov eax, [eax + _List3140.prev]	;moves through list until at correct index
 		dec ebx
 		jmp .headSearch
 	
 	.tailSearch:
 		cmp ebx, [ebp + 12]		;checks index against current location
-		je .found
+		je .cleanup
 		mov eax, [eax + _List3140.next]	;moves through list until at correct index
 		inc ebx
 		jmp .tailSearch
 	
-	.found:
-		mov ebx, [eax + _List3140.value]	;moves the value at index into ebx
-		mov [ebp + 16], ebx			;moves the indexed value into *val
-	
+	;does some cleanup of the list to make sure the links still connect
 	.cleanup:
-		;does some cleanup of the list to make sure the links still connect
 		mov edi, [eax + _List3140.prev]
 		mov esi, [eax + _List3140.next]
 		mov [edi + _List3140.next], esi
@@ -235,6 +284,8 @@ removeItem:
 	.free:
 		push eax
 		call l_free
+		lea edi, [HOT]
+		sub [edi + _HeadsOrTails.size], dword 1
 		mov eax, 1	;returns 1 on success
 		jmp .done
 	
@@ -249,22 +300,34 @@ removeItem:
 	pop ebp
 	ret
 
-;return the size of list
-;unsigned int size(struct _List3140 *list)
-size:
-	push ebp
-	mov ebp, esp
-	
-	mov esp, ebp
-	pop ebp
-	ret
-
 ;clear all data from list. The size of list will be zero
 ;following this operation
 ;void clear(struct _List3140 *list)
 clear:
 	push ebp
 	mov ebp, esp
+	
+	lea eax, [HOT]	;start clearing from head
+	mov eax, [eax + _HeadsOrTails.head]
+	
+	;routine to delete nodes and move onto the next node
+	.clearNodes:
+		cmp [eax + _List3140.next], dword 0
+		je .done
+		mov ecx, [eax + _List3140.next]
+		push eax
+		call l_free
+		mov eax, ecx
+		jmp .clearNodes
+	
+	;zeroizes the last node and head/tail
+	.done:
+		push eax
+		call listInit
+		lea eax, [HOT]
+		mov [eax + _HeadsOrTails.size], dword 0
+		mov [eax + _HeadsOrTails.head], dword 0
+		mov [eax + _HeadsOrTails.tail], dword 0
 	
 	mov esp, ebp
 	pop ebp
