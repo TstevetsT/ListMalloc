@@ -10,12 +10,16 @@ SYNOPSIS
        
 DESCRIPTION
 
-        Allocated Blocks
+         Allocated Blocks
        ---------------------    <-- Memory Ptr of Header
        ||  Size + Status  ||    4 Bytes Lowest Byte is used for Flags
        ---------------------    <-- Memory Ptr Addr Returned
        ||  User Space     ||    Space available to the calling process
        ---------------------
+       
+       Allocated block headers are 4 bytes in size. The minimum block
+       allocation for any calling function is 8 bytes. This will keep
+       free blocks aligned in the heap.
        
             Free Blocks
        ----------------------
@@ -27,6 +31,9 @@ DESCRIPTION
        ----------------------
        ||  Free Space       ||  Available Space for allocation
        ----------------------
+       
+       Free block headers are 12 bytes in size. Forward PTR and Back PTR
+       will be replaced with user space upon allocation.
        
        
        Size (4 Bytes)
