@@ -12,7 +12,7 @@ DESCRIPTION
 
               Blocks
        ---------------------    <-- Memory Ptr of Header
-       ||  Size + Status  ||    4 Bytes Lowest Byte is used for Flags
+       ||  Size + Status  ||    4 Bytes Lowest bit is used for flag
        ---------------------    <-- Memory Ptr Addr Returned
        ||  Free Space     ||    Space available to the calling process
        ---------------------
@@ -32,6 +32,10 @@ DESCRIPTION
        
        00000000 - indicates the block is free
        00000001 - indicates the block is allocated
+       
+       When a block of memory is freed the entire heap will be checked for blocks
+       to coalesce due to the absence of a previous pointer and next pointer within
+       the header information for a given block.
        
  
  RETURN VALUE

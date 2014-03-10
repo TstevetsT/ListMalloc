@@ -15,7 +15,7 @@ global removeItem	;int removeItem(struct _List3140 *list, unsigned int n, int *v
 global size		;unsigned int size(struct _List3140 *list)
 global clear		;void clear(struct _List3140 *list)
 
-;Macros Defined:
+; Single Line Macros Defined:
 %define usedNode 	mov byte [eax + _List3140.free], 0x1	;sets the free flag to no
 %define freeNode 	mov byte [eax + _List3140.free], 0x0	;sets the free flag to yes
 %define setValue	mov [eax + _List3140.data], ebx		;places a value into node
