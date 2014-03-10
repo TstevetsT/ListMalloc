@@ -32,6 +32,16 @@ l_malloc:
 	.skipCreateHeap:	;ebx=first address after break=Heap.Stop
 	mov edi, [ebp + 8]	;Holds User Requested size
 	add edi, 4		;adds header space to user size
+	mov eax, edi		
+;Ensure user input is multiple of 4 if not round up
+	and eax, 0x03
+	cmp eax, 0
+	je .MultipleOfFour
+	mov eax, edi
+	and eax, 0xFC
+	add eax, 4
+	mov edi, eax
+	.MultipleOfFour:
 	mov esi, [Heap.Start]	;CurrentAddress
 	mov ebx, 0		;BestFit Address 0=No fit foune
 	.loop:
