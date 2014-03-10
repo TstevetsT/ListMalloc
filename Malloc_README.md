@@ -29,12 +29,12 @@ DESCRIPTION
        ----------------------
        
        
-       Size (3 Bytes)
+       Size (4 Bytes)
        Size of allocated blocks can be up to a default 100,000 bytes in size 
        change HEAPMAX to a large size to modify the max intial size of the heap 
        located in malloc.asm
        
-       Status (1 Byte) - uses XOR to determine whether a status flag is
+       Status (LSB) - uses XOR to determine whether a status flag is
        utilized or not.
        
        00000000 - indicates the block is free
