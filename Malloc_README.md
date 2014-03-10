@@ -34,7 +34,7 @@ DESCRIPTION
        change HEAPMAX to a large size to modify the max intial size of the heap 
        located in malloc.asm
        
-       Status (LSB) - uses XOR to determine whether a status flag is
+       Status (LSB) - uses AND operation to determine whether a status flag is
        utilized or not.
        
        00000000 - indicates the block is free
