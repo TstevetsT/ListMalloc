@@ -111,10 +111,10 @@ l_calloc:
 	
 	xor eax, eax
 	
-	cmp [ebp + 12], dword 0  ;checks user input > 0
-	jg .intSize
 	cmp [ebp + 8], dword 0   ;checks user input > 0
 	jg .intNmemb
+	cmp [ebp + 12], dword 0  ;checks user input > 0
+	jg .intSize
 	jmp .done	;returns NULL on faliure or 0
 	
 	.intSize:

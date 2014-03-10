@@ -15,12 +15,7 @@ global removeItem	;int removeItem(struct _List3140 *list, unsigned int n, int *v
 global size		;unsigned int size(struct _List3140 *list)
 global clear		;void clear(struct _List3140 *list)
 
-; Single Line Macros Defined:
-%define usedNode 	mov byte [eax + _List3140.free], 0x1	;sets the free flag to no
-%define freeNode 	mov byte [eax + _List3140.free], 0x0	;sets the free flag to yes
-%define setValue	mov [eax + _List3140.data], ebx		;places a value into node
-%define setNxtNode	mov [eax + _List3140.next], ebx		;points to next node in list
-%define setNewNode	mov ebx, [ebx + _List3140.next]		;value of the next node in ebx
+extern l_malloc		;void *l_malloc(unsigned int size)
 
 ;A structure to manage a list of integers, its internal structure
 ;is opaque to user of the list functions below. In other words
@@ -33,9 +28,10 @@ global clear		;void clear(struct _List3140 *list)
 
 size_list:			;used to determine the size of the struc
 struc _List3140			;defined structure
-	.free:	resb 1		;0 for yes 1 for no
+	.free:	resb 4		;0 for yes 1 for no
+	.prev: resd 1		  ;*ptr to prev value or null for no nodes
 	.value:	resd 1		;integer value
-	.next:	resd 1		;* to the next value or null for end
+	.next:	resd 1		;*ptr to the next value or null for end
 endstruc
 List3140Size: equ $ - size_list	;size of the data type
 
@@ -47,6 +43,26 @@ listNew:
 	push ebp
 	mov ebp, esp
 	
+	push dword [List3140Size]
+	call l_malloc
+	cmp eax, 0
+	jle .error
+	mov ecx, eax
+	
+		;initialize list pointer
+		push dword 0
+		push dword 0
+		push dword 0
+		push word 0
+		push esp
+	
+	call listInit	;initialize structure to all 0s
+	cmp eax, 0
+	jle .error
+	mov eax, ecx
+	mov eax, [_List3140]
+	
+	.error:
 	mov esp, ebp
 	pop ebp
 	ret
@@ -57,7 +73,23 @@ listNew:
 listInit:
 	push ebp
 	mov ebp, esp
+	push ebx
 	
+	mov eax, [ebp + 8]
+	cmp eax, 0
+	jle .error
+	mov ebx, [eax + _List3140.free]		;initialize free
+	mov [_List3140.free], ebx
+	mov ebx, [eax + _List3140.prev]	;initialize prev
+	mov [_List3140.prev], ebx
+	mov ebx, [eax + _List3140.value]	;initialize value
+	mov [_List3140.value], ebx
+	mov ebx, [eax + _List3140.next]	;initialize next
+	mov [_List3140.next], ebx
+	mov eax, 1
+	
+	.error:
+	pop ebx
 	mov esp, ebp
 	pop ebp
 	ret
@@ -69,6 +101,31 @@ addHead:
 	push ebp
 	mov ebp, esp
 	
+	mov eax, [ebp + 8]		;load *list into eax
+	push eax		;function iterates through *list until finding head
+	call FindHead
+	
+	.addNode:
+		mov ecx, eax		;save eax before calling listNew
+		call listNew
+		cmp eax, 0
+		je .error
+			;make the new node the head value
+			mov [ecx + _List3140.prev], eax
+			;set the previous node to the next value for head
+			mov [eax + _List3140.next], ecx
+			
+			mov ecx, [ebp + 12]	;value passed to this function
+			mov [eax + _List3140.value], ecx	;adds value into the newly created head node
+			mov [eax + _List3140.free], word 1	;changes free flag to allocated
+			mov eax, 1	;returns success
+			jmp .done
+	
+	.error:
+	xor eax, eax
+	
+	.done:
+	pop ebx
 	mov esp, ebp
 	pop ebp
 	ret
@@ -135,22 +192,24 @@ removeItem:
 	mov ebp, esp
 	push ebx
 	
-	xor eax, eax
-	mov ebx, [ebp + 8]	;moves the *list into ebx
+	mov eax, [ebp + 8]	;moves the *list into eax
+	push eax		;function iterates through *list until finding head
+	call FindHead
+	xor ebx, ebx
 	
 	.top:
-	cmp eax, [ebp + 12]	;checks index against current location
+	cmp ebx, [ebp + 12]	;checks index against current location
 	je .found
-	mov ebx, [ebx + _List3140.next]	;moves through list until at correct index
-	inc eax
+	mov eax, [eax + _List3140.next]	;moves through list until at correct index
+	inc ebx
 	jmp .top
 	
 	.found:
-	cmp [ebx + _List3140.value], dword 0x0  ;is data > 0?
+	cmp [eax + _List3140.free], word 0
 	je .nullFound
-	freeNode	;sets the free flag to yes
-	mov eax, [ebx + _List3140.value]
-	mov [ebp + 16], eax	;moves the value into *val
+	mov [eax + _List3140.free], word 0	;changes free flag to free
+	mov ebx, [eax + _List3140.value]
+	mov [ebp + 16], ebx	;moves the value into *val
 	mov eax, 1	;returns 1 on success
 	jmp .done
 	
@@ -183,21 +242,45 @@ clear:
 	mov esp, ebp
 	pop ebp
 	ret
+	
+;int FindHead (struct _List3140 *list)
+;returns the head of the list
+FindHead:
+	push ebp
+	mov ebp, esp
+	
+	mov eax, [ebp + 8]
+	cmp [eax + _List3140.prev], dword 0		;if prev is not 0 find the head
+	je .done
+	mov eax, [eax + _List3140.prev]		;loads new address for previous node
+	push eax
+	call FindHead
+	
+	.done:
+	mov esp, ebp
+	pop ebp
+	ret
+
+;int FindTail (struct _List3140 *list)
+;returns the tail of the list
+FindTail:
+	push ebp
+	mov ebp, esp
+	
+	mov eax, [ebp + 8]
+	cmp [eax + _List3140.next], dword 0		;if prev is not 0 find the head
+	je .done
+	mov eax, [eax + _List3140.next]		;loads new address for previous node
+	push eax
+	call FindTail
+	
+	.done:
+	mov esp, ebp
+	pop ebp
+	ret
 
 ;Initialized Data
 section .data
-nonodes equ     0x100           ; max number of nodes
-onens   equ     0x8             ; space per node (_one_ _n_ode _s_pace)
-maxnode equ     nodesp+((nonodes-1) * onens)+1
-lista   dd      0x0             ; pointer to list a
-listb   dd      0x0             ; pointer to list b
  
 ;Uninitialized Data 
 section .bss
-nodesp: resd    nonodes*3   ; reserve space for the nodes
-tempa:  resd    1
-tempb:  resd    1
-tempc:  resd    1
-tempn:  resd    1
-list1:  resd    1
-list2:  resd    1
