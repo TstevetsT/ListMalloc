@@ -42,10 +42,12 @@ DESCRIPTION
        
  
  RETURN VALUE
+ 
        On success, l_malloc() returns a pointer to the reserved block.  On 
        error, NULL is returned.
        
  NOTES
+ 
        Avoid using brk() and sbrk(): the malloc(3) memory  allocation  package
        is the portable and comfortable way of allocating memory.
 
