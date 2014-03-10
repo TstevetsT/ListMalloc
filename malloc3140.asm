@@ -8,7 +8,7 @@ BITS 32					; USE32
 
 global l_malloc		;void *l_malloc(unsigned int size)
 global l_calloc		;void *l_calloc(unsigned int nmemb, unsigned int size)
-global l_realloc		;void *l_realloc(void *ptr, unsigned int size)
+global l_realloc	;void *l_realloc(void *ptr, unsigned int size)
 global l_free		;void l_free(void *ptr)
 
 ;allocate a block of memory capable of holding size
@@ -20,56 +20,76 @@ l_malloc:
 	push ebp
 	mov ebp, esp
 	push ebx
+	push edi
+	push esi
 	cmp [ebp + 8], dword 4   ;checks user input >= 4
 	jge .error
 	cmp byte [BrkInfo.InitFlag], 0   ;Check if heap is created
 	jne .skipCreateHeap
-	call CreateHeap         ;Heap created eax=start address
-	.skipCreateHeap:	;    ebx=first address after break
-	mov ecx, [ebp + 8]	;Holds User Requested size in ecx
-	push eax
-	push ebx
-	push ecx
-	and eax, 0xFE
-
-
-
-	pop ecx
-	pop ebx
-	add esp, 4
-	mov esp, ebp
-	pop ebp
-	ret
-
-	.error:
-	xor eax, eax
-	pop ebx
+	call .CreateHeap         ;Heap created eax=start address=Heap.Start
+	.skipCreateHeap:	;    ebx=first address after break=Heap.Stop
+	mov edi, [ebp + 8]	;Holds User Requested size
+	add edi, 4		;adds header space to user size
+	mov esi, [Heap.Start]	;CurrentAddress
+	mov ebx,  
+	.loop
+		mov eax, [Heap.Stop]
+		sub eax, 4		;Ensures last 4 bytes are not allocated
+		cmp esi, eax
+		jge .error
+	;FindFreeBlock
+		mov eax, [esi]
+		and eax, 0x01
+		cmp eax, 0
+		jne .NextBlock
+	;BlockBigEnough
+		cmp [esi], edi
+		jl .NextBlock
+	;BestFit
+		
+	;FixHeaders
+	.NextBlock
+		mov eax, [esi]	;Saves Current Block Size in eax
+		and eax, 0xFE	;Masks Out the In Use Bit
+		add esi, eax 	;CurrentAddress+CurrentBlockSize=NextBlockAdd
+		jmp .loop
+ 	
+	;ensure eax holds pointer to user block
+	pop esi
 	pop edi
+	pop ebx
 	mov esp, ebp
 	pop ebp
 	ret
 
-CreateHeap:
-	mov	eax, 45		;sys_brk
-	int	80h		;sets initial break pointer to start in eax
-	cmp	eax, 0
-	jl	.error	;exit, if error
-	push eax		;push starting location for heap
-	xor  	ebx, ebx
-	add	ebx, HEAPMAX	;number of bytes to be reserved
-	mov	eax, 45		;sys_brk
-	int	80h		;sets final break 	
-	cmp	eax, 0
-	jl	.error	;exit, if error 
-	mov ebx, eax
-	pop eax
-	mov [eax], HEAPMAX+1
-	mov byte [BrkInfo.InitFlag], 1  ;Sets heap as initialized
-	ret
-	
 	.error:
-	xor eax, eax
-	ret
+		xor eax, eax
+		pop esi
+		pop edi
+		pop ebx
+		mov esp, ebp
+		pop ebp
+		ret
+
+	.CreateHeap:
+		mov	eax, 45	;sys_brk
+		int	80h	;sets initial break pointer to start in eax
+		cmp	eax, 0
+		jl	.error	;exit, if error
+		mov 	[Heap.Start], eax
+		xor  	ebx, ebx
+		add	ebx, HEAPMAX	;number of bytes to be reserved
+		mov 	[Heap.Size], ebx
+		mov	eax, 45		;sys_brk
+		int	80h		;sets final break 	
+		cmp	eax, 0
+		jl	.error	;exit, if error 
+		mov 	[Heap.Stop], eax
+		mov 	eax, [Heap.Start] 	
+		add 	ebx, 1
+		mov 	[eax], ebx	;initializes the first header
+		mov byte [BrkInfo.InitFlag], 1  ;Sets heap as initialized
+		ret
 
 
 ;allocate a contiguous block of memory capable of
@@ -167,6 +187,12 @@ l_free:
 section .data
 struc BrkInfo
 	.InitFlag:	RESB 1
+endstruc
+
+struc Heap
+	.Start:	RESD 1   	;Heap Start Address
+	.Stop: RESD 1		;First Address After Heap
+	.Size: RESD 1		;Heap Size
 endstruc
 
 section .rodata
