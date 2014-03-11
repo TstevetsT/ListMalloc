@@ -29,7 +29,7 @@ extern l_malloc		;void *l_malloc(unsigned int size)
 size_list:			;used to determine the size of the struc
 struc _List3140			;defined structure
 	.free:	resb 4		;0 for yes 1 for no
-	.prev: resd 1		  ;*ptr to prev value or null for no nodes
+	.prev: resd 1		;*ptr to prev value or null for no nodes
 	.value:	resd 1		;integer value
 	.next:	resd 1		;*ptr to the next value or null for end
 endstruc
@@ -43,10 +43,10 @@ listNew:
 	push ebp
 	mov ebp, esp
 	
-	push dword [List3140Size]
-	call l_malloc
+	push dword [List3140Size]	;request general size of list
+	call l_malloc			;allocate memory for the list
 	cmp eax, 0
-	jle .error
+	je .error			;l_malloc returns null on error
 	mov ecx, eax
 	
 		;initialize list pointer
@@ -80,11 +80,11 @@ listInit:
 	jle .error
 	mov ebx, [eax + _List3140.free]		;initialize free
 	mov [_List3140.free], ebx
-	mov ebx, [eax + _List3140.prev]	;initialize prev
+	mov ebx, [eax + _List3140.prev]		;initialize prev
 	mov [_List3140.prev], ebx
 	mov ebx, [eax + _List3140.value]	;initialize value
 	mov [_List3140.value], ebx
-	mov ebx, [eax + _List3140.next]	;initialize next
+	mov ebx, [eax + _List3140.next]		;initialize next
 	mov [_List3140.next], ebx
 	mov eax, 1
 	
@@ -102,7 +102,7 @@ addHead:
 	mov ebp, esp
 	
 	mov eax, [ebp + 8]		;load *list into eax
-	push eax		;function iterates through *list until finding head
+	push eax			;function iterates through *list until finding head
 	call FindHead
 	
 	.addNode:
@@ -115,10 +115,10 @@ addHead:
 			;set the previous node to the next value for head
 			mov [eax + _List3140.next], ecx
 			
-			mov ecx, [ebp + 12]	;value passed to this function
+			mov ecx, [ebp + 12]			;value passed to this function
 			mov [eax + _List3140.value], ecx	;adds value into the newly created head node
 			mov [eax + _List3140.free], word 1	;changes free flag to allocated
-			mov eax, 1	;returns success
+			mov eax, 1				;returns success
 			jmp .done
 	
 	.error:
@@ -208,9 +208,9 @@ removeItem:
 	cmp [eax + _List3140.free], word 0
 	je .nullFound
 	mov [eax + _List3140.free], word 0	;changes free flag to free
-	mov ebx, [eax + _List3140.value]
-	mov [ebp + 16], ebx	;moves the value into *val
-	mov eax, 1	;returns 1 on success
+	mov ebx, [eax + _List3140.value]	;moves the value at index into ebx
+	mov [ebp + 16], ebx			;moves the indexed value into *val
+	mov eax, 1				;returns 1 on success
 	jmp .done
 	
 	.nullFound:
@@ -250,7 +250,7 @@ FindHead:
 	mov ebp, esp
 	
 	mov eax, [ebp + 8]
-	cmp [eax + _List3140.prev], dword 0		;if prev is not 0 find the head
+	cmp [eax + _List3140.prev], dword 0	;if prev is not 0 find the head
 	je .done
 	mov eax, [eax + _List3140.prev]		;loads new address for previous node
 	push eax
@@ -268,7 +268,7 @@ FindTail:
 	mov ebp, esp
 	
 	mov eax, [ebp + 8]
-	cmp [eax + _List3140.next], dword 0		;if prev is not 0 find the head
+	cmp [eax + _List3140.next], dword 0	;if prev is not 0 find the head
 	je .done
 	mov eax, [eax + _List3140.next]		;loads new address for previous node
 	push eax
