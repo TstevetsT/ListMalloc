@@ -33,7 +33,7 @@ l_malloc:
 	mov edi, [ebp + 8]	;Holds User Requested size
 	add edi, 4		;adds header space to user size
 	mov esi, [Heap.Start]	;CurrentAddress
-	;mov ebx,  					************************** not sure what's missing here?
+	;mov ebx,  		************************** not sure what's missing here?
 	.loop:
 		mov eax, [Heap.Stop]
 		sub eax, 4		;Ensures last 4 bytes are not allocated
@@ -76,23 +76,23 @@ l_malloc:
 		ret
 
 	.CreateHeap:
-		mov	eax, 45	;sys_brk
-		int	80h	;sets initial break pointer to start in eax
+		mov	eax, 45			;sys_brk
+		int	80h			;sets initial break pointer to start in eax
 		cmp	eax, 0
-		jl	.error	;exit, if error
+		jl	.error			;exit, if error
 		mov 	[Heap.Start], eax
 		xor  	ebx, ebx
-		add	ebx, HEAPMAX	;number of bytes to be reserved
+		add	ebx, HEAPMAX		;number of bytes to be reserved
 		mov 	[Heap.Size], ebx
-		mov	eax, 45		;sys_brk
-		int	80h		;sets final break 	
+		mov	eax, 45			;sys_brk
+		int	80h			;sets final break 	
 		cmp	eax, 0
 		jl	.error	;exit, if error 
 		mov 	[Heap.Stop], eax
 		mov 	eax, [Heap.Start] 	
 		add 	ebx, 1
-		mov 	[eax], ebx	;initializes the first header
-		mov byte [Heap.InitFlag], 1  ;Sets heap as initialized
+		mov 	[eax], ebx		;initializes the first header
+		mov byte [Heap.InitFlag], 1	;Sets heap as initialized
 		ret
 
 
@@ -105,9 +105,9 @@ l_malloc:
 ;void *l_calloc(unsigned int nmemb, unsigned int size)
 l_calloc:
 
-	push ebp	;preserve no clobber register
+	push ebp		 ;preserve no clobber register
 	mov ebp, esp
-	push ebx	;preserve no clobber register
+	push ebx		 ;preserve no clobber register
 	
 	xor eax, eax
 	
@@ -115,7 +115,7 @@ l_calloc:
 	jg .intNmemb
 	cmp [ebp + 12], dword 0  ;checks user input > 0
 	jg .intSize
-	jmp .done	;returns NULL on faliure or 0
+	jmp .done		 ;returns NULL on faliure or 0
 	
 	.intSize:
 	push dword [ebp + 12]	;uses int size to allocate a block of memory
@@ -128,28 +128,28 @@ l_calloc:
 	
 		.sizeTop:
 			mov [eax * 4 + ecx], dword 0  ;moves zeros into current mem ptr
-			inc ecx		;increment counter
-			cmp ecx, ebx	;check and see if we have gone through allocation
-			jl .sizeTop	;if not then continue to put zeroes
-			pop eax		;restore memory address ptr
-			jmp .done	;finished!
+			inc ecx				;increment counter
+			cmp ecx, ebx			;check and see if we have gone through allocation
+			jl .sizeTop			;if not then continue to put zeroes
+			pop eax				;restore memory address ptr
+			jmp .done			;finished!
 	
 	.intNmemb:
 	push dword [ebp + 8]	;uses int nmemb to allocate a block of memory
-	call l_malloc 	;call l_malloc before zeroizing
-	cmp eax, 0	;checks for error
+	call l_malloc 		;call l_malloc before zeroizing
+	cmp eax, 0		;checks for error
 	je .error
-	push eax	;preserve memory address ptr
-	xor ecx, ecx	;initialize counter to 0
-	mov ebx, [ebp + 8]  ;moves the size requested into ebx
+	push eax		;preserve memory address ptr
+	xor ecx, ecx		;initialize counter to 0
+	mov ebx, [ebp + 8]  	;moves the size requested into ebx
 	
 		.nmembTop:
 			mov [eax * 4 + ecx], dword 0  ;moves zeros into current mem ptr
-			inc ecx		;increment counter
-			cmp ecx, ebx	;check and see if we have gone through allocation
-			jl .nmembTop	;if not then continue to put zeroes
-			pop eax		;restore memory address ptr
-			jmp .done	;finished!
+			inc ecx			;increment counter
+			cmp ecx, ebx		;check and see if we have gone through allocation
+			jl .nmembTop		;if not then continue to put zeroes
+			pop eax			;restore memory address ptr
+			jmp .done		;finished!
 	
 	.error:
 	xor eax, eax	;returns NULL on l_calloc() failure 
@@ -185,18 +185,18 @@ l_free:
 	push ebx
 	
 	mov eax, [Heap.Start]	;beginning of the heap
-	mov ecx, [ebp + 8]	  ;*ptr to be freed
-	sub ecx, 4						;move ebx to header data
-	and cl, 0xFE					;sets the LSB to 0
+	mov ecx, [ebp + 8]	;*ptr to be freed
+	sub ecx, 4		;move ebx to header data
+	and cl, 0xFE		;sets the LSB to 0
 	
 	;Walks entire stack merging free blocks
 	.mergeFreeBlocks:
 	cmp eax, [Heap.Start + Heap.Size]
 	jge .done
 	add ebx, [eax-1]	;moves to next block by adding size - status
-	movzx ecx, byte [eax]			;moves lowest byte into cl
-	and cl, 0x01			;masks out all the size bits and leaves free/used flag
-	cmp cl, 0					;is the current block free?
+	movzx ecx, byte [eax]	;moves lowest byte into cl
+	and cl, 0x01		;masks out all the size bits and leaves free/used flag
+	cmp cl, 0		;is the current block free?
 	je .foundFreeBlock
 	
 	;if the block was not free move the *ptr into eax
@@ -206,16 +206,16 @@ l_free:
 	;eax was free so now we check and see if ebx is free
 	.foundFreeBlock:
 		movzx ecx, byte [ebx]	;moves lowest byte into cl
-		and cl, 0x01  ;masks out all the size bits and leaves free/used flag
-		cmp cl, 0			;is the current block free?
+		and cl, 0x01  		;masks out all the size bits and leaves free/used flag
+		cmp cl, 0		;is the current block free?
 		
 		;if ebx is allocated go to the next block otherwise add the two sizes
 		;together and replace the size field in eax
 		jne .go2NextBlock
-			mov ecx, [ebx]	;moves ebx size value into ecx
-			mov edx, [eax]	;moves eax size value into edx
+			mov ecx, [ebx]		;moves ebx size value into ecx
+			mov edx, [eax]		;moves eax size value into edx
 			add ecx, edx		;adds both sizes together
-			mov [eax], ecx	;moves the new size value into eax
+			mov [eax], ecx		;moves the new size value into eax
 			jmp .mergeFreeBlocks
 		
 		;if the block was not free move the *ptr into eax
@@ -233,9 +233,9 @@ l_free:
 section .data
 struc Heap
 	.Start:	RESD 1   	;Heap Start Address
-	.Stop: RESD 1		  ;First Address After Heap
-	.Size: RESD 1		  ;Heap Size
-	.InitFlag: RESB 1 ;Flag indicates whether a heap has been created
+	.Stop: RESD 1		;First Address After Heap
+	.Size: RESD 1		;Heap Size
+	.InitFlag: RESB 1 	;Flag indicates whether a heap has been created
 endstruc
 
 section .rodata
