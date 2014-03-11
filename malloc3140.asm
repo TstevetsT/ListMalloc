@@ -33,12 +33,12 @@ l_malloc:
 	mov edi, [ebp + 8]	;Holds User Requested size
 	add edi, 4		;adds header space to user size
 	mov esi, [Heap.Start]	;CurrentAddress
-	;mov ebx,  		************************** not sure what's missing here?
+	mov ebx, 0		;BestFit Address 0=No fit foune
 	.loop:
 		mov eax, [Heap.Stop]
 		sub eax, 4		;Ensures last 4 bytes are not allocated
 		cmp esi, eax
-		jge .error
+		jge .FixHeaders
 		
 	;FindFreeBlock
 		mov eax, [esi]
@@ -50,15 +50,39 @@ l_malloc:
 		cmp [esi], edi
 		jl .NextBlock
 	;BestFit
-		
+		cmp ebx, 0		;Is there a prev best fit?
+		je .NewBestFit
+		cmp [ebx], [esi]		;Is Current location better than prev best fit?
+		jl .NewBestFit
+		jmp .NextBlock		
+		.NewBestFit:		
+		mov ebx, esi		;make current location best fit
+		jmp .NextBlock
 	;FixHeaders
+		cmp ebx, 0 		;was a best fit found in heap
+		je .error
+		mov eax, [ebx]
+		add eax, 8	;If current block size is <= 8 bytes bigger than required block size
+		cmp eax, edi		;compare current block size + 8 to required block size
+		jge .KeepBlockSize	;Keep block size
+		mov eax, ebx
+		mov ecx, [eax]		;copy old current block size
+		add eax, esi 		;Otherwise create new header for trailing block
+		sub ecx, esi		;Calculate remaining block size
+		mov [eax], ecx		;Fills out header for trailing block
+		mov [ebx], esi		;moves requested size into user block header
+		.KeepBlockSize:
+			add [ebx], 1		;tags user block as in use
+			mov eax, ebx
+			jmp .SendPointerToUser
 	.NextBlock:
 		mov eax, [esi]	;Saves Current Block Size in eax
 		and eax, 0xFE	;Masks Out the In Use Bit
 		add esi, eax 	;CurrentAddress+CurrentBlockSize=NextBlockAdd
 		jmp .loop
- 	
-	;ensure eax holds pointer to user block
+		
+	.SendPointerToUser:
+		add eax, 4		;adjusts eax so it holds users pointer
 	pop esi
 	pop edi
 	pop ebx
