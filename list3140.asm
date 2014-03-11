@@ -16,24 +16,26 @@ global size		;unsigned int size(struct _List3140 *list)
 global clear		;void clear(struct _List3140 *list)
 
 extern l_malloc		;void *l_malloc(unsigned int size)
-extern l_free ;void l_free(void *ptr)
+extern free ;void l_free(void *ptr)
 
 ;A structure to manage a list of integers, its internal structure
 ;is opaque to user of the list functions below. In other words
 ;the layout of this structure is up to you.
 ;struct _List3140
 
-;A global const that holds the size of a 
-;struct _List3140 (ie sizeof(struct _List3140))
-;extern const unsigned int List3140Size
-
-size_list:			;used to determine the size of the struc
+;size_start:			;used to determine the size of the struc
 struc _List3140			;defined structure
 	.prev: resd 1		;*ptr to prev value or null for no nodes
 	.value:	resd 1		;integer value
 	.next:	resd 1		;*ptr to the next value or null for end
-endstruc	;12 bytes in size
-List3140Size: equ $ - size_list	;size of the data type
+endstruc
+
+;A global const that holds the size of a 
+;struct _List3140 (ie sizeof(struct _List3140))
+;extern const unsigned int List3140Size
+
+global List3140Size 
+List3140Size equ _List3140_size
 
 ;Allocate AND Initialize a new list
 ;returns a pointer to the newly allocated list or NULL on error
@@ -42,7 +44,7 @@ listNew:
 	push ebp
 	mov ebp, esp
 	
-	push dword [List3140Size]	;request general size of list
+	push dword List3140Size ;request general size of list
 	call l_malloc			;allocate memory for the list
 	cmp eax, 0
 	je .error			;l_malloc returns null on error
@@ -90,26 +92,31 @@ addHead:
 	push ebx
 	push edi
 	
-	mov ebx, [ebp + 8]	;load *list into eax
 	lea edi, [HOT]		;heads or tails struc
+	mov ebx, [ebp + 8]
 	
 	;check and see if this is the first node
 	;if the value is null that means there is no head
 	cmp [edi + _HeadsOrTails.head], dword 0
 	jne .addNode
 	.noHead:
+		mov eax, [ebp + 8]	;load *list into eax
 		mov [edi + _HeadsOrTails.head], ebx ;head location tracker
 		mov [edi + _HeadsOrTails.tail], ebx ;tail location tracker
+		mov [ebx + _List3140.prev], ebx
+		mov [ebx + _List3140.next], ebx
 		jmp .addValue
 	
 	.addNode:
 		call listNew	;creates a new node
 		cmp eax, 0
 		je .error
+			mov ebx, [edi + _HeadsOrTails.head]
 			mov ecx, [ebx + _List3140.prev]
 			mov [eax + _List3140.next], ecx 	;sets the previous node as the next value for head
-			mov [edi + _HeadsOrTails.head], eax	;head location tracker
+			mov [eax + _List3140.prev], eax
 			mov [ebx + _List3140.prev], eax 	;sets the previous value for next node to head
+			mov [edi + _HeadsOrTails.head], eax	;head location tracker
 			
 		.addValue:
 			mov ecx, [ebp + 12]			;value passed to this function
@@ -162,7 +169,7 @@ removeHead:
 		
 	.free:
 		push eax
-		call l_free
+		call free
 		mov eax, 1	;returns 1 on success
 		lea edi, [HOT]
 		sub [edi + _HeadsOrTails.size], dword 1
@@ -284,7 +291,7 @@ removeItem:
 		
 	.free:
 		push eax
-		call l_free
+		call free
 		lea edi, [HOT]
 		sub [edi + _HeadsOrTails.size], dword 1
 		mov eax, 1	;returns 1 on success
@@ -317,7 +324,7 @@ clear:
 		je .done
 		mov ecx, [eax + _List3140.next]
 		push eax
-		call l_free
+		call free
 		mov eax, ecx
 		jmp .clearNodes
 	
@@ -341,7 +348,8 @@ section .data
 section .bss
 HOT:
 struc _HeadsOrTails
-	.size: RESD 0		;holds the number of nodes in the list
-	.head: RESD 0		;holds the head of the list
-	.tail: RESD 0		;holds the tail of the list
+	.size: resd 1		;holds the number of nodes in the list
+	.head: resd 1		;holds the head of the list
+	.tail: resd 1		;holds the tail of the list
 endstruc
+HOTSize equ _HeadsOrTails_size

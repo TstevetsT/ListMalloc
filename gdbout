@@ -1,0 +1,27 @@
+set disassembly-flavor intel
+#set follow-fork-mode child # | child or parent
+#catch fork
+#catch exec
+
+# b fn_openSocket
+# b fn_openConnect
+# b fn_craftHttp
+# b fn_read
+# b fn_open
+# b fn_write
+# b fn_close
+
+b addHead
+
+display /z $eax
+display /z $ebx
+display /3z $ecx
+# display /z $edx
+display /3z $edi
+display /z $ebp
+
+disp /30xw 0x0804b000
+disp /12xw $esp
+
+run
+disass
