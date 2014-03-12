@@ -90,7 +90,7 @@ addHead:
 	push ebx
 	push edi
 	
-	mov ebx, [ebp + 8]		;load *list into eax
+	mov ebx, [ebp + 8]	;load *list into eax
 	lea edi, [HOT]		;heads or tails struc
 	
 	;check and see if this is the first node
@@ -107,9 +107,9 @@ addHead:
 		cmp eax, 0
 		je .error
 			mov ecx, [ebx + _List3140.prev]
-			mov [eax + _List3140.next], ecx ;sets the previous node as the next value for head
+			mov [eax + _List3140.next], ecx 	;sets the previous node as the next value for head
 			mov [edi + _HeadsOrTails.head], eax	;head location tracker
-			mov [ebx + _List3140.prev], eax ;sets the previous value for next node to head
+			mov [ebx + _List3140.prev], eax 	;sets the previous value for next node to head
 			
 		.addValue:
 			mov ecx, [ebp + 12]			;value passed to this function
@@ -192,7 +192,7 @@ removeItem:
 	push edi
 	push esi
 	
-	cmp [ebp + 16], dword 0
+	cmp [ebp + 16], dword 0	;check for null value in third arg
 	je .nullFound
 	
 	mov eax, [ebp + 8]	;moves the *list into eax
@@ -202,20 +202,20 @@ removeItem:
 	
 	;get the size of the list and find the middle so we know
 	; which end to start on either heads or tails
-	mov ebx, [edi + _HeadsOrTails.size]
-	shr ebx, 1 ; divides by 2
-	cmp ebx, [ebp + 12] ;compare the middle value with index
+	mov ebx, [edi + _HeadsOrTails.size]	;size of list for comparison
+	shr ebx, 1 				;divides by 2
+	cmp ebx, [ebp + 12] 			;compare the middle value with index
 	jle .tailSearch
 	
 	.headSearch:
-		cmp ebx, [ebp + 12]	;checks index against current location
+		cmp ebx, [ebp + 12]		;checks index against current location
 		je .found
 		mov eax, [eax + _List3140.prev]	;moves through list until at correct index
 		dec ebx
 		jmp .headSearch
 	
 	.tailSearch:
-		cmp ebx, [ebp + 12]	;checks index against current location
+		cmp ebx, [ebp + 12]		;checks index against current location
 		je .found
 		mov eax, [eax + _List3140.next]	;moves through list until at correct index
 		inc ebx
@@ -235,7 +235,7 @@ removeItem:
 	.free:
 		push eax
 		call l_free
-		mov eax, 1				;returns 1 on success
+		mov eax, 1	;returns 1 on success
 		jmp .done
 	
 	.nullFound:
