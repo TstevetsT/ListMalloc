@@ -11,16 +11,16 @@ set disassembly-flavor intel
 # b fn_write
 # b fn_close
 
-b removeTail
+b removeHead
 
 display /z $eax
 display /z $ebx
 display /3z $ecx
 # display /z $edx
 display /3z $edi
-display /z $ebp
+#display /z $ebp
 
-disp /30xw 0x0804b000
+disp /42xw 0x0804b000
 disp /12xw $esp
 
 run

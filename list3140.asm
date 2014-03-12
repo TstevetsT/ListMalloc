@@ -149,7 +149,8 @@ removeHead:
 
 	;moves the value at head node into ebx and then into arg [2]
 	mov ebx, [eax + _List3140.value]
-	mov [ebp + 12], ebx
+	mov edi, [ebp + 12]
+	mov [edi], ebx	;dereference the *val pointer to put the ebx value inside it
 
 	;is the head and tail ==? if so just free the node
 	mov ebx, [ebp + 8]	;admin node with head/tail/count
@@ -264,7 +265,8 @@ removeTail:
 
 	;moves the value at tail node into ebx and then into arg [2]
 	mov ebx, [eax + _List3140.value]
-	mov [ebp + 12], ebx
+	mov edi, [ebp + 12]
+	mov [edi], ebx	;dereference the *val pointer to put the ebx value inside it
 
 	;is the head and tail ==? if so just free the node
 	mov ebx, [ebp + 8]	;admin node with head/tail/count
@@ -314,7 +316,7 @@ itemAt:
 	
 	mov ebx, [ebp + 8]			;heads or tails struc
 	mov edi, [ebx + _List3140.value]
-	mov eax, [ebx + _List3140.prev]
+	mov eax, [ebx + _List3140.next]
 	cmp edi, dword 1			;is there only one node? if so just display it
 	jle .foundItem
 	
@@ -331,7 +333,8 @@ itemAt:
 		
 	.foundItem:
 		mov ebx, [eax + _List3140.value]	;moves the value at index into ebx
-		mov [ebp + 16], ebx			;moves the indexed value into *val
+		mov edi, [ebp + 16]			;moves the indexed value into *val
+		mov [edi], ebx	;dereference the *val pointer to put the ebx value inside it
 		mov eax, 1	;returns 1 on success
 		jmp .done
 	
@@ -390,7 +393,8 @@ removeItem:
 		
 	.free:
 		mov ebx, [eax + _List3140.value]	;moves the value at index into ebx
-		mov [ebp + 16], ebx			;moves the indexed value into *val
+		mov edi, [ebp + 16]			;moves the *val pointer
+		mov [edi], ebx	;dereference the *val pointer to put the ebx value inside it
 		mov [eax + _List3140.next], dword 0	;only for testing
 		mov [eax + _List3140.prev], dword 0	;only for testing
 		mov [eax + _List3140.value], dword 0	;only for testing
