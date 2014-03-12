@@ -11,7 +11,7 @@ set disassembly-flavor intel
 # b fn_write
 # b fn_close
 
-b removeItem
+b removeTail
 
 display /z $eax
 display /z $ebx

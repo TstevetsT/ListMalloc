@@ -50,9 +50,9 @@ listNew:
 	
 	push eax	;push pointer to memory address that was malloc'd
 	call listInit	;initialize structure to all 0s
-	cmp eax, 0
+	cmp eax, 0	;returns 0 on error
 	je .error
-	pop eax
+	pop eax	;pop memory address so that it is returned
 	
 	.error:
 	mov esp, ebp
@@ -99,20 +99,9 @@ addHead:
 	cmp edi, dword 0
 	jne .addNode
 	.noHead:
-		;mov eax, [ebp + 8]	;load *list into eax
-			call listNew	;creates a new node
-			cmp eax, 0
-			je .error
-			;sets up second node and head/tail of the admin node (first node)
-			mov [ebx + _List3140.prev], eax
-			mov [ebx + _List3140.next], eax
-			mov [eax + _List3140.prev], eax
-			mov [eax + _List3140.next], eax
-			
-			mov ecx, [ebp + 12]			;value passed to this function
-			mov [eax + _List3140.value], ecx	;adds value into the newly created head node
-			add [ebx + _List3140.value], dword 1 ;number of nodes inserted increases
-			mov eax, 1
+			push dword [ebp + 12]
+			call make1stNode
+			add esp, 4
 			jmp .done
 	
 	.addNode:
@@ -158,23 +147,20 @@ removeHead:
 	mov ebx, [ebp + 8]	;loads the *list into ebx
 	mov eax, [ebx + _List3140.prev]	;loads head
 
-	;moves the value at index into ebx and then into arg [2]
+	;moves the value at head node into ebx and then into arg [2]
 	mov ebx, [eax + _List3140.value]
 	mov [ebp + 12], ebx
 
-	;is there no tail? is so just free the node
-	cmp [eax + _List3140.next], eax
+	;is the head and tail ==? if so just free the node
+	mov ebx, [ebp + 8]	;admin node with head/tail/count
+	cmp [ebx + _List3140.next], eax
 	je .free
 
 	;does some cleanup of the list to make sure the links still connect
 	.cleanup:
-		mov ebx, [ebp + 8]	;admin node with head/tail/count
 		mov edi, [eax + _List3140.next]	;node right below head
 		mov [ebx + _List3140.prev], edi	;sets new head
 		mov [edi + _List3140.prev], edi ;sets node to head
-		;mov [ebx + _List3140.prev], edi
-		;mov eax, [edi + _List3140.next]
-		;mov [edi + _List3140.next], ebx
 		
 	.free:
 		mov [eax + _List3140.next], dword 0	;only for testing
@@ -182,6 +168,7 @@ removeHead:
 		mov [eax + _List3140.value], dword 0	;only for testing
 		push ebx
 		call l_free
+		pop eax
 		mov eax, 1	;returns 1 on success
 		mov edi, [ebp + 8]
 		sub [edi + _List3140.value], dword 1
@@ -203,8 +190,8 @@ size:
 	push ebp
 	mov ebp, esp
 	
-	lea eax, [HOT]
-	mov eax, [eax + _HeadsOrTails.size]
+	mov eax, [ebp + 8]
+	mov eax, [eax + _List3140.value]
 	
 	mov esp, ebp
 	pop ebp
@@ -217,8 +204,43 @@ addTail:
 	push ebp
 	mov ebp, esp
 	push ebx
+	push edi
 	
+	mov ebx, [ebp + 8]	;loads the *list into ebx
+	mov edi, [ebx + _List3140.next]	;loads tail
 	
+	;check and see if this is the first node
+	;if the value is null that means there is no head
+	cmp edi, dword 0
+	jne .addNode
+	.noTail:
+			push dword [ebp + 12]
+			call make1stNode
+			add esp, 4
+			jmp .done
+	
+	.addNode:
+		call listNew	;creates a new node
+		cmp eax, 0
+		je .error
+			mov ecx, [edi + _List3140.next]	;loads current tail
+			mov [edi + _List3140.next], eax	;links old tail to new tail
+			mov [eax + _List3140.prev], ecx	;set new node as tail
+			mov [eax + _List3140.next], eax	;set new node as tail
+			mov [ebx + _List3140.next], eax	;set new node as bottom of list
+			
+		.addValue:
+			mov ecx, [ebp + 12]			;value passed to this function
+			mov [eax + _List3140.value], ecx	;adds value into the newly created head node
+			add [ebx + _List3140.value], dword 1 ;number of nodes inserted increases
+			mov eax, 1				;returns success
+			jmp .done
+	
+	.error:
+	xor eax, eax
+	
+	.done:
+	pop edi
 	pop ebx
 	mov esp, ebp
 	pop ebp
@@ -232,8 +254,46 @@ removeTail:
 	push ebp
 	mov ebp, esp
 	push ebx
+	push edi
 	
+	cmp [ebp + 12], dword 0	;check for null value in arg [2]
+	je .nullFound
 	
+	mov ebx, [ebp + 8]	;loads the *list into ebx
+	mov eax, [ebx + _List3140.next]	;loads tail
+
+	;moves the value at tail node into ebx and then into arg [2]
+	mov ebx, [eax + _List3140.value]
+	mov [ebp + 12], ebx
+
+	;is the head and tail ==? if so just free the node
+	mov ebx, [ebp + 8]	;admin node with head/tail/count
+	cmp [ebx + _List3140.prev], eax
+	je .free
+
+	;does some cleanup of the list to make sure the links still connect
+	.cleanup:
+		mov edi, [eax + _List3140.prev]	;node right above tail
+		mov [ebx + _List3140.next], edi	;sets new tail
+		mov [edi + _List3140.next], edi ;sets node to tail
+		
+	.free:
+		mov [eax + _List3140.next], dword 0	;only for testing
+		mov [eax + _List3140.prev], dword 0	;only for testing
+		mov [eax + _List3140.value], dword 0	;only for testing
+		push ebx
+		call l_free
+		pop eax
+		mov eax, 1	;returns 1 on success
+		mov edi, [ebp + 8]
+		sub [edi + _List3140.value], dword 1
+		jmp .done
+	
+	.nullFound:
+		xor eax, eax	;returns 0 on finding NULL
+	
+	.done:
+	pop edi
 	pop ebx
 	mov esp, ebp
 	pop ebp
@@ -246,6 +306,44 @@ removeTail:
 itemAt:
 	push ebp
 	mov ebp, esp
+	push ebx
+	push edi
+	
+	cmp [ebp + 16], dword 0			;check for null value in third arg
+	je .nullFound
+	
+	mov ebx, [ebp + 8]				;heads or tails struc
+	mov edi, [ebx + _List3140.value]
+	mov eax, [ebx + _List3140.prev]
+	cmp edi, dword 1			;is there only one node? if so just display it
+	jle .foundItem
+	
+	;starts from the tail of the list and moves forward
+	xor ebx, ebx
+	.tailSearch:
+		cmp ebx, [ebp + 12]		;checks index against current location
+		je .foundItem
+		cmp ebx, [ebp + 12]	;in the index is outside the range report an error
+		jg .nullFound
+		mov eax, [eax + _List3140.prev]	;moves through list until at correct index
+		inc ebx
+		jmp .tailSearch
+		
+	.foundItem:
+		mov ebx, [eax + _List3140.value]	;moves the value at index into ebx
+		mov [ebp + 16], ebx			;moves the indexed value into *val
+		mov eax, 1	;returns 1 on success
+		jmp .done
+	
+	.nullFound:
+		xor eax, eax	;returns 0 on finding NULL
+	
+	.done:
+	pop edi
+	pop ebx
+	mov esp, ebp
+	pop ebp
+	ret
 	
 	mov esp, ebp
 	pop ebp
@@ -277,6 +375,8 @@ removeItem:
 	.tailSearch:
 		cmp ebx, [ebp + 12]		;checks index against current location
 		je .cleanup
+		cmp ebx, [ebp + 12]	;in the index is outside the range report an error
+		jg .nullFound
 		mov eax, [eax + _List3140.prev]	;moves through list until at correct index
 		inc ebx
 		jmp .tailSearch
@@ -296,8 +396,9 @@ removeItem:
 		mov [eax + _List3140.value], dword 0	;only for testing
 		push eax
 		call l_free
-		lea edi, [HOT]
-		sub [edi + _HeadsOrTails.size], dword 1
+		pop eax
+		mov edi, [ebp + 8]
+		sub [edi + _List3140.value], dword 1
 		mov eax, 1	;returns 1 on success
 		jmp .done
 	
@@ -318,41 +419,68 @@ removeItem:
 clear:
 	push ebp
 	mov ebp, esp
+	push edi
+	push esi
+	push ebx
 	
-	lea eax, [HOT]	;start clearing from head
-	mov eax, [eax + _HeadsOrTails.head]
+	mov ebx, [ebp + 8]	;load admin header node
 	
 	;routine to delete nodes and move onto the next node
 	.clearNodes:
-		cmp [eax + _List3140.next], dword 0
+		mov esi, [ebx + _List3140.next]	;load tail
+		mov edi, [ebx + _List3140.prev]	;load head
+		cmp esi, edi
 		je .done
-		mov ecx, [eax + _List3140.next]
-		push eax
+
+	;does some cleanup of the list to make sure the links still connect
+	.cleanup:
+		mov ecx, [edi + _List3140.next]	;node right below head
+		mov [ecx + _List3140.prev], ecx ;sets node to head
+		mov [ebx + _List3140.prev], ecx	;sets new node to head
+
+		mov [edi + _List3140.next], dword 0	;only for testing
+		mov [edi + _List3140.prev], dword 0	;only for testing
+		mov [edi + _List3140.value], dword 0	;only for testing
+		push edi
 		call l_free
-		mov eax, ecx
+		add esp, 4
+		;sub [ebx + _List3140.value], dword 1 ; not really needed but makes it so you can see that the free worked
 		jmp .clearNodes
 	
-	;zeroizes the last node and head/tail
+	;zeroizes the admin node so that head/tail/length are reset
 	.done:
-		push eax
+		push ebx
 		call listInit
-		lea eax, [HOT]
-		mov [eax + _HeadsOrTails.size], dword 0
-		mov [eax + _HeadsOrTails.head], dword 0
-		mov [eax + _HeadsOrTails.tail], dword 0
+		pop ebx
 	
+	pop ebx
+	pop esi
+	pop edi
 	mov esp, ebp
 	pop ebp
 	ret
-
-;Initialized Data
-section .data
- 
-;Uninitialized Data 
-section .bss
-HOT:
-struc _HeadsOrTails
-	.size: resd 1		;holds the number of nodes in the list
-	.head: resd 1		;holds the head of the list
-	.tail: resd 1		;holds the tail of the list
-endstruc
+	
+; if only the admin node exists this will create a 
+; node to become both the head and tail as the first node
+; make1stNode(int *val), where val is the value you want
+; to add to the node. ebx is passed to this subfunction from
+; the caller and need to be identified as the admin node
+make1stNode:
+	push ebx
+		call listNew	;creates a new node
+		cmp eax, 0
+		je .error
+		
+			;sets up second node and head/tail of the admin node (first node)
+			mov [ebx + _List3140.prev], eax
+			mov [ebx + _List3140.next], eax
+			mov [eax + _List3140.prev], eax
+			mov [eax + _List3140.next], eax
+		
+		mov ecx, [esp + 8]			;value passed to this function
+		mov [eax + _List3140.value], ecx	;adds value into the newly created head node
+		add [ebx + _List3140.value], dword 1 ;number of nodes inserted increases
+		mov eax, 1
+		.error:
+	pop ebx
+	ret
