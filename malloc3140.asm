@@ -7,7 +7,7 @@
 BITS 32					; USE32
 
 global l_malloc		;void *l_malloc(unsigned int size)
-global l_calloc	;void *l_calloc(unsigned int nmemb, unsigned int size)
+global l_calloc		;void *l_calloc(unsigned int nmemb, unsigned int size)
 global l_realloc	;void *l_realloc(void *ptr, unsigned int size)
 global l_free		;void l_free(void *ptr)
 
@@ -145,15 +145,15 @@ l_calloc:
 	
 	.intSize:
 	push dword [ebp + 12]	;uses int size to allocate a block of memory
-	call l_malloc	;call l_malloc before zeroizing
-	cmp eax, 0	;checks for error
+	call l_malloc		;call l_malloc before zeroizing
+	cmp eax, 0		;checks for error
 	je .error
-	push eax	;preserve memory address ptr
-	xor ecx, ecx	;initialize counter to 0
-	mov ebx, [ebp + 12]  ;moves the size requested into ebx
+	push eax		;preserve memory address ptr
+	xor ecx, ecx		;initialize counter to 0
+	mov ebx, [ebp + 12]  	;moves the size requested into ebx
 	
 		.sizeTop:
-			mov [eax * 4 + ecx], dword 0  ;moves zeros into current mem ptr
+			mov [eax * 4 + ecx], dword 0  	;moves zeros into current mem ptr
 			inc ecx				;increment counter
 			cmp ecx, ebx			;check and see if we have gone through allocation
 			jl .sizeTop			;if not then continue to put zeroes
@@ -171,11 +171,11 @@ l_calloc:
 	
 		.nmembTop:
 			mov [eax * 4 + ecx], dword 0  ;moves zeros into current mem ptr
-			inc ecx			;increment counter
-			cmp ecx, ebx		;check and see if we have gone through allocation
-			jl .nmembTop		;if not then continue to put zeroes
-			pop eax			;restore memory address ptr
-			jmp .done		;finished!
+			inc ecx				;increment counter
+			cmp ecx, ebx			;check and see if we have gone through allocation
+			jl .nmembTop			;if not then continue to put zeroes
+			pop eax				;restore memory address ptr
+			jmp .done			;finished!
 	
 	.error:
 	xor eax, eax	;returns NULL on l_calloc() failure 
