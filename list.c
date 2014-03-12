@@ -2,31 +2,32 @@
 #include <stdlib.h>
 
 int main() {
+		int x;
+	  int * value;
 
-	  //node_t * test_list = listNew();
-	  int * first_list = listNew();
-	  int x = 1;
-    //* test_list = listInit(*test_list);
-    while (x <= 3){
-    	if (addHead (first_list, ((x*5))) == NULL) return -1;
+	  int first_list = listNew();
+
+    x = size(first_list);
+    printf("\nSize of list during listNew(): %d\n\n", x);
+    	  
+    while (x <= 5){
+    	if (addHead (first_list, (x)) == NULL) return -1;
     		x++;
     	}
-    /*test_list->val = 1;
-    test_list->next = malloc(sizeof(node_t));
-    test_list->next->val = 2;
-    test_list->next->next = malloc(sizeof(node_t));
-    test_list->next->next->val = 3;
-    test_list->next->next->next = malloc(sizeof(node_t));
-    ;test_list->next->next->next->val = 4;
-    ;test_list->next->next->next->next = NULL;
-    
-    
+    x = size(first_list);
+    printf("Size of list during addHead(): %d\n\n", x);
 
-    ;remove_by_value(&test_list, 3);
-
-    ;print_list(test_list);
+    removeHead(first_list, value);
+    x = size(first_list);
+    printf("Size of list during removeHead(): %d\n\n", x);
+		printf("Removed value from head is: %d\n\n", value);
     
-    ;while (current != NULL) {
+    removeItem(first_list, 2, value);
+    x = size(first_list);
+    printf("Size of list during removeItem(): %d\n\n", x);
+    printf("Removed value from index is: %d\n\n", value);
+    
+    /*;while (current != NULL) {
     ;    printf("%d\n", current->val);
     ;    current = current->next;
     ;}*/
