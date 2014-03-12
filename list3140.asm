@@ -94,7 +94,8 @@ addHead:
 	lea edi, [HOT]		;heads or tails struc
 	
 	;check and see if this is the first node
-	cmp [edi + _HeadsOrTails.head], dword 0 ;if the value is null that means there is no head
+	;if the value is null that means there is no head
+	cmp [edi + _HeadsOrTails.head], dword 0
 	jne .addNode
 	.noHead:
 		mov [edi + _HeadsOrTails.head], ebx ;head location tracker
@@ -145,17 +146,17 @@ removeHead:
 	lea eax, [HOT]
 	mov eax, [eax + _HeadsOrTails.head]
 
-;moves the value at index into ebx and then into arg [2]
+	;moves the value at index into ebx and then into arg [2]
 	mov ebx, [eax + _List3140.value]
 	mov [ebp + 12], ebx
 
-;is there no tail? is so just free the node
+	;is there no tail? is so just free the node
 	cmp [eax + _List3140.next], dword 0
 	je .free
 
 	;does some cleanup of the list to make sure the links still connect
 	.cleanup:
-		mov ebx, [eax + _List3140.next]	;passes next node to ebx to create new head
+		mov ebx, [eax + _List3140.next]		;passes next node to ebx to create new head
 		mov [ebx + _List3140.prev], dword 0	;removes link to previous head
 		mov [HOT + _HeadsOrTails.head], ebx
 		
@@ -243,15 +244,15 @@ removeItem:
 	push edi
 	push esi
 	
-	cmp [ebp + 16], dword 0	;check for null value in third arg
+	cmp [ebp + 16], dword 0			;check for null value in third arg
 	je .nullFound
 	
-	mov eax, [ebp + 8]	;moves the *list into eax
+	mov eax, [ebp + 8]			;moves the *list into eax
 	mov ebx, [eax + _List3140.value]	;moves the value at index into ebx
 	mov [ebp + 16], ebx			;moves the indexed value into *val
 
-	lea edi, [HOT]		;heads or tails struc
-	cmp [ebp + 12], dword 1	;is there only one node? if so just free it
+	lea edi, [HOT]				;heads or tails struc
+	cmp [ebp + 12], dword 1			;is there only one node? if so just free it
 	jle .free
 	
 	;starts from the middle of the list and moves forward or backwards
