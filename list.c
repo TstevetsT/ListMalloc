@@ -25,7 +25,7 @@ int main() {
     printf("Size of list after addTail(): %d\n\n", x);
     	
     itemAt(first_list, 2, &value);
-    printf("Removed value from itemAt(2) is: %d\n\n", value);
+    printf("Removed value from itemAt(2git) is: %d\n\n", value);
     removeItem(first_list, 2, &value);
     printf("Removed value from index(2) is: %d\n\n", value);
     itemAt(first_list, 2, &value);
