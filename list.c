@@ -2,49 +2,66 @@
 #include <stdlib.h>
 
 int main() {
-		int x;
-	  int value;
+		int x, y, value;
 
 	  int first_list = listNew();
-
-    x = size(first_list);
-    printf("\nSize of list during listNew(): %d\n\n", x);
-    	  
-    while (x <= 4){
+///////////////////////////////////////////////////////////////////////////////
+      y = 0;/////////////////////////////////////////////////////////////////
+     	printf ("Size of List: %d\n", (x = size(first_list)));
+      printf  ("List at beginning:\n");/////////////////////////////
+      while (y < x){////////////////////////////////////////////////////
+    	itemAt(first_list, y, &value);///////////////////////////////
+    	printf("%d;  ", value); ////////////////////////////////////////
+    	y++;}      printf  ("\n\n");////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+    
+    while (x <= 10){
     	if (addHead (first_list, x) == NULL) return -1;
     		x++;
     	}
-    x = size(first_list);
-    printf("Size of list after addHead(): %d\n\n", x);
-    
-    while (x >= 0){
-    	if (addTail (first_list, x) == NULL) return -1;
-    		x--;
-    	}
-    x = size(first_list);
-    printf("Size of list after addTail(): %d\n\n", x);
-    	
-    itemAt(first_list, 2, &value);
-    printf("Removed value from itemAt(2git) is: %d\n\n", value);
-    removeItem(first_list, 2, &value);
-    printf("Removed value from index(2) is: %d\n\n", value);
-    itemAt(first_list, 2, &value);
-    printf("Removed value from itemAt(2) is: %d\n\n", value);
-    
-    removeTail(first_list, &value);
-    printf("Removed value from removeTail() is: %d\n\n", value);
-    
-    removeHead(first_list, &value);
-		printf("Removed value from removeHead() is: %d\n\n", value);
+		addHead (first_list, 11111);
 		
-		itemAt(first_list, 5, &value);
-    printf("Removed value from itemAt(5) is: %d\n\n", value);
+    x = 991;
+    while (x <= 999){
+    	if (addTail (first_list, x) == NULL) return -1;
+    		x++;
+    	}
+    addTail (first_list, 99999);
+        	
+/////////////////////////////////////////////////////////////////////////////
+    	printf ("Size of List: %d\n", (x = size(first_list)));
+      y = 0;////////////////////////////////////////////////////////////////
+      printf  ("List after addHead and addTail:\n");////////
+      while (y < x){///////////////////////////////////////////////////
+    	itemAt(first_list, y, &value);//////////////////////////////
+    	printf("%d;  ", value); ///////////////////////////////////////
+    	y++;}      printf  ("\n\n");///////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+
+    removeItem(first_list, 2, &value);
+    removeTail(first_list, &value);
+    removeHead(first_list, &value);
+    
+///////////////////////////////////////////////////////////////////////////////////////
+    	printf ("Size of List: %d\n", (x = size(first_list)));//////////
+      y = 0;/////////////////////////////////////////////////////////////////////////
+      printf  ("List after removing tail, head, and item(2):\n");
+      while (y < x){////////////////////////////////////////////////////////////
+    	itemAt(first_list, y, &value);///////////////////////////////////////
+    	printf("%d;  ", value); ///////////////////////////////////////////////
+    	y++;}      printf  ("\n\n");////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
         
     clear(first_list);
     
-    /*;while (current != NULL) {
-    ;    printf("%d\n", current->val);
-    ;    current = current->next;
-    ;}*/
+/////////////////////////////////////////////////////////////////////////////
+    	printf ("Size of List: %d\n", (x = size(first_list)));
+      y = 0;///////////////////////////////////////////////////////////////
+      printf  ("List at end:\n");////////////////////////////////////
+      while (y < x){//////////////////////////////////////////////////
+    	itemAt(first_list, y, &value);/////////////////////////////
+    	printf("%d;  ", value); //////////////////////////////////////
+    	y++;}      printf  ("\n\n");//////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
     return 0;
 }
