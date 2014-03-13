@@ -233,7 +233,7 @@ l_free:
 	cmp eax, ebx
 	jge .done
 	add ebx, [eax]	;moves to next block by adding size - status
-	sub [ebx], 1
+	sub dword [ebx], 1
 	movzx ecx, byte [eax]	;moves lowest byte into cl
 	and cl, 0x01		;masks out all the size bits and leaves free/used flag
 	cmp cl, 0		;is the current block free?
