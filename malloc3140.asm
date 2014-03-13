@@ -112,7 +112,7 @@ l_malloc:
 	.CreateHeap:
 		xor  	ebx, ebx
 		mov	eax, 45			;sys_brk
-		int	80h			;sets initial break
+		int	80h			;checks initial break
 		cmp	eax, 0
 		jl	.error			;exit, if error
 		mov	[HeapStart], eax
@@ -233,7 +233,6 @@ l_free:
 	cmp eax, ebx
 	jge .done
 	add ebx, [eax]	;moves to next block by adding size - status
-	sub dword [ebx], 1
 	movzx ecx, byte [eax]	;moves lowest byte into cl
 	and cl, 0x01		;masks out all the size bits and leaves free/used flag
 	cmp cl, 0		;is the current block free?
@@ -264,6 +263,17 @@ l_free:
 			jmp .mergeFreeBlocks
 	
 	.done:
+	mov ebx, [HeapStart]
+	mov eax, [HeapSize]
+	cmp [ebx], eax
+	jne .out
+	.test:
+	mov ecx, [HeapSize] ;size_t len
+	mov ebx, [HeapStart] ;void *addr
+	mov eax, 91 ;sys_munmap
+;	mov eax, 45
+	int 0x80
+	.out:
 	pop ebx
 	mov esp, ebp
 	pop ebp
