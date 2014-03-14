@@ -1,3 +1,8 @@
+#streamline gdb setup
+#user the following command:::
+# gdb ./<program> -x gdbout 
+# where gdbout is the name of a text file with the below items
+
 set disassembly-flavor intel
 #set follow-fork-mode child # | child or parent
 #catch fork
