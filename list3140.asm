@@ -43,7 +43,7 @@ listNew:
 	push ebp
 	mov ebp, esp
 	
-	push dword List3140Size ;request general size of list
+	push dword List3140Size 	;request general size of list
 	call l_malloc			;allocate memory for the list
 	cmp eax, 0
 	je .error			;l_malloc returns null on error
@@ -91,7 +91,7 @@ addHead:
 	push ebx
 	push edi
 	
-	mov ebx, [ebp + 8]	;loads the *list into ebx
+	mov ebx, [ebp + 8]		;loads the *list into ebx
 	mov edi, [ebx + _List3140.prev]	;loads head
 	
 	;check and see if this is the first node
@@ -117,7 +117,7 @@ addHead:
 		.addValue:
 			mov ecx, [ebp + 12]			;value passed to this function
 			mov [eax + _List3140.value], ecx	;adds value into the newly created head node
-			add [ebx + _List3140.value], dword 1 ;number of nodes inserted increases
+			add [ebx + _List3140.value], dword 1 	;number of nodes inserted increases
 			mov eax, 1				;returns success
 			jmp .done
 	
@@ -144,7 +144,7 @@ removeHead:
 	cmp [ebp + 12], dword 0	;check for null value in arg [2]
 	je .nullFound
 	
-	mov ebx, [ebp + 8]	;loads the *list into ebx
+	mov ebx, [ebp + 8]		;loads the *list into ebx
 	mov eax, [ebx + _List3140.prev]	;loads head
 
 	;moves the value at head node into ebx and then into arg [2]
@@ -206,7 +206,7 @@ addTail:
 	push ebx
 	push edi
 	
-	mov ebx, [ebp + 8]	;loads the *list into ebx
+	mov ebx, [ebp + 8]		;loads the *list into ebx
 	mov edi, [ebx + _List3140.next]	;loads tail
 	
 	;check and see if this is the first node
@@ -232,7 +232,7 @@ addTail:
 		.addValue:
 			mov ecx, [ebp + 12]			;value passed to this function
 			mov [eax + _List3140.value], ecx	;adds value into the newly created head node
-			add [ebx + _List3140.value], dword 1 ;number of nodes inserted increases
+			add [ebx + _List3140.value], dword 1 	;number of nodes inserted increases
 			mov eax, 1				;returns success
 			jmp .done
 	
@@ -256,10 +256,10 @@ removeTail:
 	push ebx
 	push edi
 	
-	cmp [ebp + 12], dword 0	;check for null value in arg [2]
+	cmp [ebp + 12], dword 0		;check for null value in arg [2]
 	je .nullFound
 	
-	mov ebx, [ebp + 8]	;loads the *list into ebx
+	mov ebx, [ebp + 8]		;loads the *list into ebx
 	mov eax, [ebx + _List3140.next]	;loads tail
 
 	;moves the value at tail node into ebx and then into arg [2]
@@ -309,10 +309,10 @@ itemAt:
 	push ebx
 	push edi
 	
-	cmp [ebp + 16], dword 0			;check for null value in third arg
+	cmp [ebp + 16], dword 0		;check for null value in third arg
 	je .nullFound
 	
-	mov ebx, [ebp + 8]				;heads or tails struc
+	mov ebx, [ebp + 8]			;heads or tails struc
 	mov edi, [ebx + _List3140.value]
 	mov eax, [ebx + _List3140.prev]
 	cmp edi, dword 1			;is there only one node? if so just display it
@@ -323,7 +323,7 @@ itemAt:
 	.tailSearch:
 		cmp ebx, [ebp + 12]		;checks index against current location
 		je .foundItem
-		cmp ebx, [ebp + 12]	;in the index is outside the range report an error
+		cmp ebx, [ebp + 12]		;in the index is outside the range report an error
 		jg .nullFound
 		mov eax, [eax + _List3140.prev]	;moves through list until at correct index
 		inc ebx
@@ -363,7 +363,7 @@ removeItem:
 	cmp [ebp + 16], dword 0			;check for null value in third arg
 	je .nullFound
 	
-	mov ebx, [ebp + 8]				;heads or tails struc
+	mov ebx, [ebp + 8]			;heads or tails struc
 	mov edi, [ebx + _List3140.value]
 	cmp edi, dword 1			;is there only one node? if so just free it
 	jle .free
@@ -375,7 +375,7 @@ removeItem:
 	.tailSearch:
 		cmp ebx, [ebp + 12]		;checks index against current location
 		je .cleanup
-		cmp ebx, [ebp + 12]	;in the index is outside the range report an error
+		cmp ebx, [ebp + 12]		;in the index is outside the range report an error
 		jg .nullFound
 		mov eax, [eax + _List3140.prev]	;moves through list until at correct index
 		inc ebx
