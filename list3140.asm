@@ -93,7 +93,7 @@ addHead:
 	push edi
 	
 	lea edi, [HOT]		;heads or tails struc
-	mov ebx, [ebp + 8]
+	mov ebx, [ebp + 8]	;loads the *list into ebx
 	
 	;check and see if this is the first node
 	;if the value is null that means there is no head
@@ -113,10 +113,10 @@ addHead:
 		je .error
 			mov ebx, [edi + _HeadsOrTails.head]
 			mov ecx, [ebx + _List3140.prev]
-			mov [eax + _List3140.next], ecx 	;sets the previous node as the next value for head
-			mov [eax + _List3140.prev], eax
-			mov [ebx + _List3140.prev], eax 	;sets the previous value for next node to head
-			mov [edi + _HeadsOrTails.head], eax	;head location tracker
+			mov [eax + _List3140.next], ecx 	;sets the previous node as the next value for new head
+			mov [eax + _List3140.prev], eax		;sets the head as previous value for new head
+			mov [ebx + _List3140.prev], eax 	;links the previous value to the new head
+			mov [edi + _HeadsOrTails.head], eax	;head location tracker gets updated
 			
 		.addValue:
 			mov ecx, [ebp + 12]			;value passed to this function
@@ -352,4 +352,3 @@ struc _HeadsOrTails
 	.head: resd 1		;holds the head of the list
 	.tail: resd 1		;holds the tail of the list
 endstruc
-HOTSize equ _HeadsOrTails_size
