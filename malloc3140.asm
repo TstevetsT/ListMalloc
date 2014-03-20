@@ -22,10 +22,14 @@ l_malloc:
 	push ebx
 	push edi
 	push esi
-	mov edi, [ebp+8]
+	mov edi, [ebp+8]   ;edi contains user requested size
 	
 	cmp edi, 4   ;checks user input >= 4
-	jl .error
+	jge .BigEnough
+	cmp edi, 0
+	je .error
+	mov edi, 4
+	.BigEnough:
 	cmp byte [HeapInit], 0	   	;Check if heap is created
 	jne .skipCreateHeap
 	call .CreateHeap 
@@ -66,11 +70,33 @@ l_malloc:
 		jmp .NextBlock		
 		.NewBestFit:		
 		mov ebx, esi		;make current location best fit
-		jmp .NextBlock
+	.NextBlock:
+		mov eax, [esi]	;Saves Current Block Size in eax
+		and eax, 0xFFFFFFFE  ;Mask out the inuse Bit
+		add esi, eax 	;CurrentAddress+CurrentBlockSize=NextBlockAdd
+		jmp .loop
+	
+	.GrowHeap:
+		mov 	ecx, [HeapStop]
+		mov	ebx, ecx
+		add	ebx, edi
+		mov 	eax, 45
+		int	80h
+		cmp	eax, 0
+		jl	.error
+		mov	[HeapStop], eax
+		sub	eax, [HeapStart]
+		mov 	[HeapSize], eax
+		mov     eax, [HeapStart]
+		mov 	ebx, ecx
+		mov 	[ebx], edi     ;mov req size into ebx
+		add dword [ebx], 1     ;tags block as in use
+		mov eax, ebx
+		jmp .SendPointerToUser	
 
 	.FixHeaders:
 		cmp ebx, 0 		;was a best fit found in heap
-		je .error
+		je .GrowHeap
 		mov eax, [ebx]
 ;What is This	add eax, 8	;If current block size is <= 8 bytes 
 				;	bigger than required block size
@@ -86,11 +112,6 @@ l_malloc:
 			add dword [ebx], 1	;tags user block as in use
 			mov eax, ebx
 			jmp .SendPointerToUser
-	.NextBlock:
-		mov eax, [esi]	;Saves Current Block Size in eax
-		and eax, 0xFFFFFFFE  ;Mask out the inuse Bit
-		add esi, eax 	;CurrentAddress+CurrentBlockSize=NextBlockAdd
-		jmp .loop
 		
 	.SendPointerToUser:
 		add eax, 4	;adjusts eax so it holds users pointer
@@ -130,7 +151,6 @@ l_malloc:
 		mov     eax, [HeapStart]
 		mov  	ebx, [HeapSize]
 		mov 	[eax], ebx
-		.test: 
 		ret
 
 
