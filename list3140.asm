@@ -267,7 +267,7 @@ removeTail:
 
 	;is the head and tail ==? if so just free the node
 	mov ebx, [ebp + 8]	;admin node with head/tail/count
-	cmp [ebx + _List3140.below], eax
+	cmp [ebx + _List3140.above], eax
 	je .free
 
 	;does some cleanup of the list to make sure the links still connect
