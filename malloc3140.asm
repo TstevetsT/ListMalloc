@@ -229,6 +229,10 @@ l_free:
 	
 	mov edi, [ebp + 8]	;*ptr to be freed
 	sub edi, 4		;move ebx to header data
+	mov edx, [edi]
+	and edx, 0x01
+	cmp dl, 0x0
+	je .done
 	sub [edi], dword 1
 	;and dl, 0xFE
 	

@@ -444,6 +444,16 @@ clear:
 	
 	;zeroizes the admin node so that head/tail/length are reset
 	.done:
+		mov ecx, [edi + _List3140.below]	;node right below head
+		mov [ecx + _List3140.above], ecx ;sets node to head
+		mov [ebx + _List3140.above], ecx	;sets new node to head
+
+		mov [edi + _List3140.below], dword 0
+		mov [edi + _List3140.above], dword 0
+		mov [edi + _List3140.value], dword 0
+		push edi
+		call l_free
+		
 		push ebx
 		call listInit
 		pop ebx

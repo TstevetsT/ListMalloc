@@ -3,7 +3,7 @@ set disassembly-flavor intel
 #catch fork
 #catch exec
 
-b remove_head
+b clear
 
 display /xw $eax
 display /xw $ebx
