@@ -20,7 +20,7 @@ struct rec
     		printf("Second value: %f\n", ptr_one->PI);
     		printf("Third value: %c\n", ptr_one->A);
 
-    		//l_free(ptr_one);
+    		l_free(ptr_one);
     		
    	int a,n;
 		int * ptr_data;
@@ -32,7 +32,7 @@ struct rec
 		if (ptr_data==NULL)
 		{
 			printf ("Error allocating requested memory");
-			exit (1);
+			return -1;
 		}
 
 		for ( n=0; n<a; n++ )
@@ -45,7 +45,7 @@ struct rec
 		for ( n=0; n<a; n++ )
 			printf ("%d ",ptr_data[n]);
 
-		free (ptr_data);
+		l_free (ptr_data);
 
    		return 0;
 	}

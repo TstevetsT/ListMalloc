@@ -174,7 +174,10 @@ l_calloc:
 		.top:
 			mov [eax + ecx * 4], dword 0  ;moves zeros into current mem ptr
 			inc ecx			;increment counter
-			mov edx, [ecx * 4]
+			push eax
+			imul eax, 4
+			mov edx, eax
+			pop eax
 			cmp edx, ebx		;check and see if we have gone through allocation
 			jl .top		;if not then continue to put zeroes
 			jmp .done		;finished!
@@ -274,17 +277,16 @@ l_free:
 			jmp .mergeFreeBlocks
 	
 	.done:
+	;check and see if the heap is completely free
 	mov ebx, [HeapStart]
 	mov eax, [HeapSize]
 	cmp [ebx], eax
 	jne .out
 	.test:
-	mov ecx, [HeapSize] ;size_t len
-	mov ebx, [HeapStart] ;void *addr
-	mov eax, 91 ;sys_munmap
-;	mov eax, 45
+	mov ebx, [HeapStart] ;move the break back prior to the heap creation
+	mov eax, 45
 	int 0x80
-	mov [HeapInit], dword 0
+	mov [HeapInit], dword 0	;resets heap init flag
 	.out:
 	pop edi
 	pop ebx
