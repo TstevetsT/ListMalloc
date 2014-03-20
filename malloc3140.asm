@@ -24,7 +24,11 @@ l_malloc:
 	push esi
 	mov edi, [ebp+8]
 	cmp edi, 4   ;checks user input >= 4
-	jl .error
+	jge .BigEnough
+	cmp edi, 0
+	je .error
+	mov edi, 4
+	.BigEnough:
 	cmp byte [HeapInit], 0	   	;Check if heap is created
 	jne .skipCreateHeap
 	call .CreateHeap 
