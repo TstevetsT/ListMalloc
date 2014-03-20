@@ -15,14 +15,14 @@ int main() {
     	y++;}      printf  ("\n\n");////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
     
-    while (x <= 10){
+    while (x <= 1){
     	if (addHead (first_list, x) == NULL) return -1;
     		x++;
     	}
 		addHead (first_list, 11111);
 		
     x = 991;
-    while (x <= 999){
+    while (x <= 991){
     	if (addTail (first_list, x) == NULL) return -1;
     		x++;
     	}

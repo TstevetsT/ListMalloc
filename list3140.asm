@@ -164,10 +164,7 @@ removeHead:
 		mov [edi + _List3140.below], edi ;sets node to head
 		
 	.free:
-		mov [eax + _List3140.above], dword 0	;only for testing
-		mov [eax + _List3140.below], dword 0	;only for testing
-		mov [eax + _List3140.value], dword 0	;only for testing
-		push ebx
+		push eax
 		call l_free
 		pop eax
 		mov eax, 1	;returns 1 on success
@@ -280,10 +277,7 @@ removeTail:
 		mov [edi + _List3140.above], edi ;sets node to tail
 		
 	.free:
-		mov [eax + _List3140.above], dword 0	;only for testing
-		mov [eax + _List3140.below], dword 0	;only for testing
-		mov [eax + _List3140.value], dword 0	;only for testing
-		push ebx
+		push eax
 		call l_free
 		pop eax
 		mov eax, 1	;returns 1 on success
@@ -395,9 +389,6 @@ removeItem:
 		mov ebx, [eax + _List3140.value]	;moves the value at index into ebx
 		mov edi, [ebp + 16]			;moves the *val pointer
 		mov [edi], ebx	;dereference the *val pointer to put the ebx value inside it
-		mov [eax + _List3140.below], dword 0	;only for testing
-		mov [eax + _List3140.above], dword 0	;only for testing
-		mov [eax + _List3140.value], dword 0	;only for testing
 		push eax
 		call l_free
 		pop eax
@@ -442,9 +433,9 @@ clear:
 		mov [ecx + _List3140.above], ecx ;sets node to head
 		mov [ebx + _List3140.above], ecx	;sets new node to head
 
-		mov [edi + _List3140.below], dword 0	;only for testing
-		mov [edi + _List3140.above], dword 0	;only for testing
-		mov [edi + _List3140.value], dword 0	;only for testing
+		mov [edi + _List3140.below], dword 0
+		mov [edi + _List3140.above], dword 0
+		mov [edi + _List3140.value], dword 0
 		push edi
 		call l_free
 		add esp, 4

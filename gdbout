@@ -3,25 +3,18 @@ set disassembly-flavor intel
 #catch fork
 #catch exec
 
-# b fn_openSocket
-# b fn_openConnect
-# b fn_craftHttp
-# b fn_read
-# b fn_open
-# b fn_write
-# b fn_close
+b remove_head
 
-b removeHead
+display /xw $eax
+display /xw $ebx
+display /xw $ecx
+display /xw $edx
+display /t $edx
+display /xw $edi
+display /xw $esi
+display /xw $ebp
 
-display /z $eax
-display /z $ebx
-display /3z $ecx
-# display /z $edx
-display /3z $edi
-#display /z $ebp
-
-disp /42xw 0x0804b000
-disp /12xw $esp
+disp /28xw 0x0804b000
+disp /15xw $esp
 
 run
-disass
