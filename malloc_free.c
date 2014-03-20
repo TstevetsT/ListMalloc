@@ -45,7 +45,28 @@ struct rec
 		for ( n=0; n<a; n++ )
 			printf ("%d ",ptr_data[n]);
 
+		int * buffer;
+		/*get a initial memory block*/
+		buffer = (int*) l_malloc (10*sizeof(int));
+		if (buffer==NULL)
+		{
+			printf("Error allocating memory!");
+			return -1;
+		}
+
+		/*get more memory with realloc*/
+		buffer = (int*) l_realloc (ptr_data, 5*sizeof(int));
+		if (buffer==NULL)
+		{
+			printf("Error reallocating memory!");
+			//Free the initial memory block.
+			l_free (buffer);
+			return -1;
+		}
+
 		l_free (ptr_data);
 
-   		return 0;
+		l_free (buffer);
+
+   	return 0;
 	}

@@ -159,23 +159,25 @@ l_calloc:
 	imul ebx	;one operand multiplies times eax
 	jc .error
 	
+	;allocate memory for the caller
 	push eax
 	call l_malloc
 	cmp eax, 0
-	je .error
-	
+	je .error	;make sure memory was able to be allocated
 	pop ebx	;clear previous push off stack
+	
+	;does some magic to find the length field ...
 	sub eax, 4	;now holds length + status
-	mov ebx, [eax]
-	sub ebx, 1
-	add eax, 4
+	mov ebx, [eax]	;move header info into ebx
+	sub ebx, 1	;remove status flag so ebx has only the size
+	add eax, 4	;move eax into allocated blocks of memory
 	xor ecx, ecx	;initialize counter
 	
 		.top:
 			mov [eax + ecx * 4], dword 0  ;moves zeros into current mem ptr
 			inc ecx			;increment counter
-			push eax
-			imul eax, 4
+			push eax	;don't erase eax ...
+			imul ecx, 4	;make sure we are comparing multiples of 4
 			mov edx, eax
 			pop eax
 			cmp edx, ebx		;check and see if we have gone through allocation
@@ -202,7 +204,65 @@ ret
 l_realloc:
 	push ebp
 	mov ebp, esp
+	push ebx
+	push edi
+	push esi
 	
+	mov esi, [ebp + 8]	;checks and sees if the *ptr is null
+	cmp esi, 0x0	;if *ptr is null just do l_malloc
+	je .onNullMalloc	
+	
+	mov edi, [ebp + 12]	;requested size of the new block of memory
+	push edi
+	call l_malloc
+	pop edi
+	cmp eax, 0
+	je .error
+		mov edi, eax	;save returned pointer
+		mov ecx, [ebp + 12]	;requested new memory size
+		sub esi, 4	;get to header
+		mov eax, [esi] ;realloc *ptr copying size
+		sub eax, 1	;remove status flag
+		add esi, 4	;restore original *ptr
+		
+	cmp eax, ecx
+	jl .reallocPtrSmaller
+		mov ebx, ecx
+		xor ecx, ecx	;initialize counter
+		jmp .top
+		
+	.reallocPtrSmaller:
+		mov ebx, eax
+		xor ecx, ecx	;initialize counter
+	
+		.top:
+			mov eax, [esi + ecx * 4]
+			mov [edi + ecx * 4], eax  ;moves zeros into current mem ptr
+			inc ecx			;increment counter
+			mov edx, ecx
+			imul edx, 4	;make sure we are comparing multiples of 4
+			mov edx, eax
+			cmp edx, ebx		;check and see if we have gone through allocation
+			jl .top		;if not then continue to put zeroes
+			mov eax, edi
+			jmp .done		;finished!
+	
+	.onNullMalloc:
+		mov eax, [ebp + 12]	;size requested in l_realloc(null, size)
+		push eax
+		call l_malloc
+		pop ebx
+		cmp eax, 0	;was l_malloc() successful?
+		je .error
+		jmp .done
+	
+	.error:
+	xor eax, eax
+	
+	.done:
+	pop esi
+	pop edi
+	pop ebx
 	mov esp, ebp
 	pop ebp
 	ret
