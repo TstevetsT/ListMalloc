@@ -3,7 +3,7 @@ set disassembly-flavor intel
 #catch fork
 #catch exec
 
-b l_calloc
+b l_realloc
 
 display /xw $eax
 display /xw $ebx

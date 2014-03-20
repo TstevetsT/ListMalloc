@@ -55,7 +55,7 @@ struct rec
 		}
 
 		/*get more memory with realloc*/
-		buffer = (int*) l_realloc (ptr_data, 5*sizeof(int));
+		buffer = (int*) l_realloc (ptr_data, 10);
 		if (buffer==NULL)
 		{
 			printf("Error reallocating memory!");
@@ -64,9 +64,8 @@ struct rec
 			return -1;
 		}
 
-		l_free (ptr_data);
-
 		l_free (buffer);
+		l_free (ptr_data);
 
    	return 0;
 	}
