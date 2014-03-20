@@ -23,6 +23,7 @@ l_malloc:
 	push edi
 	push esi
 	mov edi, [ebp+8]
+	
 	cmp edi, 4   ;checks user input >= 4
 	jl .error
 	cmp byte [HeapInit], 0	   	;Check if heap is created
@@ -220,50 +221,52 @@ l_free:
 	push ebp
 	mov ebp, esp
 	push ebx
+	push edi
 	
-	mov eax, [HeapStart]	;beginning of the heap
-	mov ecx, [ebp + 8]	;*ptr to be freed
-	sub ecx, 4		;move ebx to header data
-	and cl, 0xFE		;sets the LSB to 0
+	mov edi, [ebp + 8]	;*ptr to be freed
+	sub edi, 4		;move ebx to header data
+	sub [edi], dword 1
+	;and dl, 0xFE
 	
-	;Walks entire stack merging free blocks
-	.mergeFreeBlocks:
+	;Walks entire stack merging free blocks of until the current location
+	mov eax, [HeapStart]
 	mov ebx, [HeapStart]
-	add ebx, [HeapSize]
-	cmp eax, ebx
-	jge .done
-	add ebx, [eax]	;moves to next block by adding size - status
-;<<<<<<< HEAD
-	sub dword [ebx], 1
-;=======
-;>>>>>>> 829fdec57d4a42b7cf2e37b31d81b8ef9ede3ff4
-	movzx ecx, byte [eax]	;moves lowest byte into cl
-	and cl, 0x01		;masks out all the size bits and leaves free/used flag
-	cmp cl, 0		;is the current block free?
-	je .foundFreeBlock
+	.mergeFreeBlocks:
+		add ebx, [eax]
+		cmp ebx, [HeapStop]
+		je .done
+		mov edx, [eax]
+		and edx, 0x01
+		cmp dl, 0x0
+		je .foundFreeBlock
+		mov ecx, [eax]
+		sub ecx, 1	;removes the allocated status flag
+		add eax, ecx	;moves to next block by adding size - status flag
+		jmp .mergeFreeBlocks
 	
-	;if the block was not free move the *ptr into eax
-	mov eax, ebx	
-	jmp .mergeFreeBlocks
-	
-	;eax was free so now we check and see if ebx is free
+	;we found one free block so now we check and see if the next block is free
 	.foundFreeBlock:
-		movzx ecx, byte [ebx]	;moves lowest byte into cl
-		and cl, 0x01  		;masks out all the size bits and leaves free/used flag
-		cmp cl, 0		;is the current block free?
+		mov ecx, eax	;copy eax into ecx to find next block
+		add ecx, [eax]	;moves to the next block
+		mov edx, [ecx]
+		and edx, 0x01
+		cmp dl, 0x0
 		
 		;if ebx is allocated go to the next block otherwise add the two sizes
 		;together and replace the size field in eax
 		jne .go2NextBlock
-			mov ecx, [ebx]		;moves ebx size value into ecx
-			mov edx, [eax]		;moves eax size value into edx
-			add ecx, edx		;adds both sizes together
-			mov [eax], ecx		;moves the new size value into eax
+			cmp ecx, [HeapStop]
+			je .done
+			mov edx, [ecx]		;moves ebx size value into ecx
+			add edx, [eax]		;adds eax size value to edx
+			mov [eax], edx		;moves the new size value into eax
 			jmp .mergeFreeBlocks
 		
-		;if the block was not free move the *ptr into eax
+		;if the block was not free move the *ptr into eax to update current location
 		.go2NextBlock:
-			mov eax, ebx	
+			mov edx, [ecx]
+			sub edx, 1
+			mov eax, ecx	
 			jmp .mergeFreeBlocks
 	
 	.done:
@@ -278,6 +281,7 @@ l_free:
 ;	mov eax, 45
 	int 0x80
 	.out:
+	pop edi
 	pop ebx
 	mov esp, ebp
 	pop ebp
