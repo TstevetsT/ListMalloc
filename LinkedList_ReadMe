@@ -92,15 +92,15 @@ DESCRIPTION
        added node (in this example node 2), and then links the new head node to
        the previous head node. It also increases the size of the list that is
        tracked by the admin node.
-                                     |-------------------
-           admin          node 1 -----                  |
-                                      ------node 2      |
+                                        |-------------------
+           admin             node 1 -----                  |
+                                         ------node 2      |
        ----------	  ------------   |  ------------   |
        |  0x0001 |	  |  0x0001  |   |  |  0x0001  |<--|
        |     2   |  	  |  int val |   |  |  int val |
-       |  0x0002 | <   |  0x0002  |<--|  |  0x0002  | 
-       ----------  |   ------------   |  ------------
-                   ^------------------|    
+       |  0x0002 | <      |  0x0002  |<--|  |  0x0002  | 
+       ----------  |      ------------   |  ------------
+                   ^---------------------|    
                    
        addTail(): Updates the admin node changing the tail value, and then
        the new node (in this example node 3) links itself to the previously
