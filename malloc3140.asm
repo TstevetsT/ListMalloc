@@ -61,15 +61,17 @@ l_malloc:
 	;BlockBigEnough
 		cmp [esi], edi
 		jl .NextBlock
-	;BestFit
+	.BestFit:
 		cmp ebx, 0		;Is there a prev best fit?
 		je .NewBestFit
 		mov eax, [ebx]		;Is current location a better
 		cmp eax, [esi]  	; fit than prev best fit?
-		jl .NewBestFit
+		jge .NewBestFit
 		jmp .NextBlock		
-		.NewBestFit:		
+		.NewBestFit:
 		mov ebx, esi		;make current location best fit
+		cmp eax, [esi]
+		je .FixHeaders		
 	.NextBlock:
 		mov eax, [esi]	;Saves Current Block Size in eax
 		and eax, 0xFFFFFFFE  ;Mask out the inuse Bit
@@ -383,4 +385,4 @@ HeapSize dd 0		;Heap Size
 HeapInit db 0		;Flag indicates whether a heap has been created
 
 section .rodata
-HEAPMAX dd 0xFA0	
+HEAPMAX dd 0xFA0 	
