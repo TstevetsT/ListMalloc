@@ -1,5 +1,8 @@
+; 14 March 2013
+; Assignment 6 list3140.asm
 ; nasm -f elf32 -g list3140.asm
-; gcc -o main list.c list3140.o malloc3140.o -nostdlib -nodefaultlibs -fno-builtin -nostartfiles
+; gcc -o main test_malloc_list.c list3140.o malloc3140.o
+; to run use ./main
 
 
 BITS 32			; USE32
@@ -14,9 +17,10 @@ global itemAt		;int itemAt(struct _List3140 *list, unsigned int n, int *val)
 global removeItem	;int removeItem(struct _List3140 *list, unsigned int n, int *val)
 global size		;unsigned int size(struct _List3140 *list)
 global clear		;void clear(struct _List3140 *list)
+global List3140Size 	;struct _List3140 (ie sizeof(struct _List3140))
 
 extern l_malloc		;void *l_malloc(unsigned int size)
-extern l_free ;void l_free(void *ptr)
+extern l_free           ;void l_free(void *ptr)
 
 ;A structure to manage a list of integers, its internal structure
 ;is opaque to user of the list functions below. In other words
@@ -27,14 +31,12 @@ struc _List3140			;defined structure
 	.above: resd 1		;*ptr to above value or null for no nodes
 	.value:	resd 1		;integer value
 	.below:	resd 1		;*ptr to the below value or null for end
-	.testvalue: resb 3
 endstruc
 
 ;A global const that holds the size of a 
 ;struct _List3140 (ie sizeof(struct _List3140))
 ;extern const unsigned int List3140Size
 
-global List3140Size 
 List3140Size equ _List3140_size
 
 ;Allocate AND Initialize a new list
@@ -53,7 +55,7 @@ listNew:
 	call listInit	;initialize structure to all 0s
 	cmp eax, 0	;returns 0 on error
 	je .error
-	pop eax	;pop memory address so that it is returned
+	pop eax	        ;pop memory address so that it is returned
 	
 	.error:
 	mov esp, ebp
@@ -72,9 +74,9 @@ listInit:
 	mov eax, [ebp + 8]
 	cmp eax, 0
 	jle .error
-	mov [eax + _List3140.above], ebx		;initialize above with null
+	mov [eax + _List3140.above], ebx	;initialize above with null
 	mov [eax + _List3140.value], ebx	;initialize value with null
-	mov [eax + _List3140.below], ebx		;initialize below with null
+	mov [eax + _List3140.below], ebx	;initialize below with null
 	mov eax, 1
 	
 	.error:
@@ -92,7 +94,7 @@ addHead:
 	push ebx
 	push edi
 	
-	mov ebx, [ebp + 8]		;loads the *list into ebx
+	mov ebx, [ebp + 8]			;loads the *list into ebx
 	mov edi, [ebx + _List3140.below]	;loads head
 	
 	;check and see if this is the first node
@@ -142,10 +144,10 @@ removeHead:
 	push ebx
 	push edi
 	
-	cmp [ebp + 12], dword 0	;check for null value in arg [2]
+	cmp [ebp + 12], dword 0			;check for null value in arg [2]
 	je .nullFound
 	
-	mov ebx, [ebp + 8]		;loads the *list into ebx
+	mov ebx, [ebp + 8]			;loads the *list into ebx
 	mov eax, [ebx + _List3140.below]	;loads head
 
 	;moves the value at head node into ebx and then into arg [2]
@@ -162,7 +164,7 @@ removeHead:
 	.cleanup:
 		mov edi, [eax + _List3140.above]	;node right below head
 		mov [ebx + _List3140.below], edi	;sets new head
-		mov [edi + _List3140.below], edi ;sets node to head
+		mov [edi + _List3140.below], edi 	;sets node to head
 		
 	.free:
 		push eax
@@ -190,7 +192,14 @@ size:
 	mov ebp, esp
 	
 	mov eax, [ebp + 8]
+	cmp eax, 0
+	je .error
 	mov eax, [eax + _List3140.value]
+	jmp .done
+	
+	.error:
+	xor eax, eax
+	.done:
 	
 	mov esp, ebp
 	pop ebp
@@ -342,10 +351,6 @@ itemAt:
 	mov esp, ebp
 	pop ebp
 	ret
-	
-	mov esp, ebp
-	pop ebp
-	ret
 
 ;Remove the integer at index n of the list returning
 ;the value of that integer in *val (if val is not NULL)
@@ -440,13 +445,12 @@ clear:
 		push edi
 		call l_free
 		add esp, 4
-		;sub [ebx + _List3140.value], dword 1 ; not really needed but makes it so you can see that the free worked
 		jmp .clearNodes
 	
 	;zeroizes the admin node so that head/tail/length are reset
 	.done:
 		mov ecx, [edi + _List3140.below]	;node right below head
-		mov [ecx + _List3140.above], ecx ;sets node to head
+		mov [ecx + _List3140.above], ecx 	;sets node to head
 		mov [ebx + _List3140.above], ecx	;sets new node to head
 
 		mov [edi + _List3140.below], dword 0

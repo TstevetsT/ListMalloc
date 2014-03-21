@@ -1,7 +1,8 @@
 ; 14 March 2013
 ; Assignment 6 malloc3140.asm
-;; nasm -f elf32 -g malloc3140.asm
-; gcc -o main main.c list3140.o malloc3140.o -nostdlib -nodefaultlibs -fno-builtin -nostartfiles
+; nasm -f elf32 -g malloc3140.asm
+; gcc -o main test_malloc_list.c list3140.o malloc3140.o
+; to run use ./main
 
 BITS 32					; USE32
 
@@ -241,16 +242,28 @@ l_realloc:
 	cmp eax, 0
 	je .error
 		mov edi, eax	;save returned pointer
-		mov ecx, [ebp + 12]	;requested new memory size
+		sub eax, 4
+		mov ecx, [eax]
+		sub ecx, 1
+		
 		sub esi, 4	;get to header
 		mov eax, [esi] ;realloc *ptr copying size
 		sub eax, 1	;remove status flag
 		add esi, 4	;restore original *ptr
 		
 	cmp eax, ecx
-	jl .reallocPtrSmaller
+		je .ohNoEqual
+	cmp eax, ecx
+		jl .reallocPtrSmaller
 		mov ebx, ecx
+		sub ebx, 4
 		xor ecx, ecx	;initialize counter
+		jmp .top
+		
+	.ohNoEqual:
+		sub eax, 4
+		mov ebx, eax
+		xor ecx, ecx
 		jmp .top
 		
 	.reallocPtrSmaller:
@@ -263,7 +276,7 @@ l_realloc:
 			inc ecx			;increment counter
 			mov edx, ecx
 			imul edx, 4	;make sure we are comparing multiples of 4
-			mov edx, eax
+			;mov edx, eax
 			cmp edx, ebx		;check and see if we have gone through allocation
 			jl .top		;if not then continue to put zeroes
 			mov eax, edi
