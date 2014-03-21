@@ -27,6 +27,7 @@ struc _List3140			;defined structure
 	.above: resd 1		;*ptr to above value or null for no nodes
 	.value:	resd 1		;integer value
 	.below:	resd 1		;*ptr to the below value or null for end
+	.testvalue: resb 3
 endstruc
 
 ;A global const that holds the size of a 

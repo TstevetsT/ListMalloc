@@ -14,7 +14,7 @@ display /xw $edi
 display /xw $esi
 display /xw $ebp
 
-disp /28xw 0x0804b000
+disp /42xw 0x0804b000
 disp /15xw $esp
 
 run

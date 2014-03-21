@@ -154,47 +154,37 @@ l_calloc:
 	xor eax, eax
 	
 	cmp [ebp + 8], dword 0   ;checks user input > 0
-	jg .intNmemb
+	jle .error
 	cmp [ebp + 12], dword 0  ;checks user input > 0
-	jg .intSize
-	jmp .done		 ;returns NULL on faliure or 0
+	jle .error
 	
-	.intSize:
-	push dword [ebp + 12]	;uses int size to allocate a block of memory
-	call l_malloc	;call l_malloc before zeroizing
-	cmp eax, 0	;checks for error
+	mov eax, [ebp + 8]
+	mov ebx, [ebp + 12]
+	imul ebx	;one operand multiplies times eax
+	jc .error
+	
+	push eax
+	call l_malloc
+	cmp eax, 0
 	je .error
-	push eax	;preserve memory address ptr
-	xor ecx, ecx	;initialize counter to 0
-	mov ebx, [ebp + 12]  ;moves the size requested into ebx
 	
-		.sizeTop:
-			mov [eax * 4 + ecx], dword 0  ;moves zeros into current mem ptr
-			inc ecx				;increment counter
-			cmp ecx, ebx			;check and see if we have gone through allocation
-			jl .sizeTop			;if not then continue to put zeroes
-			pop eax				;restore memory address ptr
-			jmp .done			;finished!
+	pop ebx	;clear previous push off stack
+	sub eax, 4	;now holds length + status
+	mov ebx, [eax]
+	sub ebx, 1
+	add eax, 4
+	xor ecx, ecx	;initialize counter
 	
-	.intNmemb:
-	push dword [ebp + 8]	;uses int nmemb to allocate a block of memory
-	call l_malloc 		;call l_malloc before zeroizing
-	cmp eax, 0		;checks for error
-	je .error
-	push eax		;preserve memory address ptr
-	xor ecx, ecx		;initialize counter to 0
-	mov ebx, [ebp + 8]  	;moves the size requested into ebx
-	
-		.nmembTop:
-			mov [eax * 4 + ecx], dword 0  ;moves zeros into current mem ptr
+		.top:
+			mov [eax + ecx * 4], dword 0  ;moves zeros into current mem ptr
 			inc ecx			;increment counter
-			cmp ecx, ebx		;check and see if we have gone through allocation
-			jl .nmembTop		;if not then continue to put zeroes
-			pop eax			;restore memory address ptr
+			mov edx, [ecx * 4]
+			cmp edx, ebx		;check and see if we have gone through allocation
+			jl .top		;if not then continue to put zeroes
 			jmp .done		;finished!
 	
 	.error:
-	xor eax, eax	;returns NULL on l_calloc() failure 
+	xor eax, eax	;returns NULL on l_calloc() or l_malloc() failure 
 	
 	.done:
 	pop ebx		;restore no clobber register
@@ -228,6 +218,16 @@ l_free:
 	push edi
 	
 	mov edi, [ebp + 8]	;*ptr to be freed
+	cmp edi, 0x0
+	jg .skip
+	xor eax, eax
+	pop edi
+	pop ebx
+	mov esp, ebp
+	pop ebp
+	ret
+	
+	.skip:
 	sub edi, 4		;move ebx to header data
 	mov edx, [edi]
 	and edx, 0x01
@@ -288,6 +288,7 @@ l_free:
 	mov eax, 91 ;sys_munmap
 ;	mov eax, 45
 	int 0x80
+	mov [HeapInit], dword 0
 	.out:
 	pop edi
 	pop ebx
