@@ -11,6 +11,7 @@
 */
 
 #include<stdio.h> 
+#include<stdlib.h>
 
 struct rec
 	{
@@ -27,21 +28,30 @@ struct rec
 	printf("\nTesting Malloc Implementation");
 	printf("\n**********************\n");
 		
-		/* testing of malloc goes here
-		struct rec *ptr_one;
-		ptr_one =(struct rec *) l_malloc (sizeof(struct rec));
 
-		ptr_one->i = 10;		//(*ptr_one).i = 10;
-    ptr_one->PI = 3.14;		//(*ptr_one).PI = 3.14;
-    ptr_one->A = 'a';		//(*ptr_one).A = 'a';
 
-    		printf("First value: %d\n", ptr_one->i);
-    		printf("Second value: %f\n", ptr_one->PI);
-    		printf("Third value: %c\n", ptr_one->A);
-
-    		l_free(ptr_one);
-    		
-    		*/
+	void * ptr[10];
+	int toop;
+	int i;
+	int s;
+	int u=0;
+		for (i =0; i<10; i++)
+		{
+			s = i*87;
+			ptr[i] = l_malloc(s);
+	    		printf("Pointer: %p Size: %i\n", ptr[i], s);
+			if (i>0)
+			{
+				toop=ptr[i]-ptr[i-1];
+				u=s+u;
+				printf("Diff: %i TotalUsed: %i\n", toop, u);
+			}
+		}		
+		for (i =0; i<10; i++)
+		{	
+    			l_free(ptr[i]);
+		}
+   		return 0;
     		
    	int a,n;
 		int * ptr_data;

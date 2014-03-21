@@ -14,6 +14,10 @@ SYNOPSIS
 DESCRIPTION
 
 
+       l_malloc()  allocates size of bytes and returns a pointer to the allocated 
+       memory.  The memory is not initialized or cleared.   The data structure 
+       used to allocate memory is shown below.
+       
               Blocks
        ---------------------    <-- Memory Ptr of Header
        ||  Size + Status  ||    4 Bytes Lowest bit is used for flag
@@ -24,7 +28,15 @@ DESCRIPTION
        Allocated block headers are 4 bytes in size. The minimum block
        allocation is 4 bytes. With no space for user data. This will keep 
        free blocks aligned in the heap. If any blocks are 4 bytes in size
-       it will automatically be added to the allocation.
+       it will automatically be added to the allocation.  The heap is
+       initialized by adjusting the break by 4000 KB.  When bytes are requested
+       a walk down the storage viewing the headers of each block will occur.  
+       The size of block is used to find start of subsequent blocks. 
+       If an exact size match is encountered, it will be used.  As each block 
+       is tested, a pointer to the smallest block that is big enough for data is 
+       maintained.  When the bottom of the heap is reached, if a block has been 
+       identified it is used.  If a big enough block was not found, the heap 
+       will be grown by the requested block size.  
        
        Size (4 Bytes)
        Size of allocated blocks can be up to a default 100,000 bytes in size 
