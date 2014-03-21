@@ -12,6 +12,7 @@
 
 #include<stdio.h> 
 #include<stdlib.h>
+#include <time.h>
 
 struct rec
 	{
@@ -19,17 +20,12 @@ struct rec
     		float PI;
     		char A;
 	};
-	int testing;
+
+int max=20,toop,i,s,u=0,range=2000;
+void * ptr[40]; //MUST be max times 2 to prevent memory leakage
 	
 void malloctest()
 {
-	void * ptr[401];
-	int toop;
-	int i;
-	int s;
-	int u=0;
-	int range=2000;
-	int max=50;
 		for (i =1; i<max; i++)
 		{
 			s = rand() % range+1;
@@ -41,7 +37,10 @@ void malloctest()
 				u=s+u;
 				printf("   Byte Diff: %i TotalBytesUsed: %i\n", toop, u);
 			}
-			else printf("\n");
+			else 
+			{
+				printf("\n");
+			}
 		}	
 
 		int t;	
@@ -59,27 +58,33 @@ void malloctest()
 	    		printf("Pointer: %p Size: %i\n  ", ptr[i], s);
 		}
 
-		for (i =1; i<max*2; i++)
+		for (i =1; i<max; i++)
 		{	
     			l_free(ptr[i]);
-			//printf("%p have been freed\n",ptr[i]);
+			printf("%p has been freed. ptr=%i\n",ptr[i], i);
 			ptr[i]=0;
 		}
-		asm("test:");
 }
 	
 	int main()
 	{
-//Malloc Implementation
+		srand (time(NULL));     //creates a seed for rand using system clock
+//Malloc Implementation Test
 		printf("**********************");
 		printf("\nTesting Malloc Implementation");
 		printf("\n**********************\n");
-		malloctest();	
+		malloctest();
+
+//Demoing Calloc
+	printf("\n\n**********************");
+	printf("\nDemonstrating Calloc  ");
+	printf("\n**********************\n");
+	
     		
-   		int a,n;
+   		int a,n,x,y,value;
 		int * ptr_data;
 
-		printf ("Enter amount: ");
+		printf ("Enter number of integers in list: ");
 		scanf ("%d",&a);
 
 		ptr_data = (int*) l_calloc ( a,sizeof(int) );
@@ -88,28 +93,45 @@ void malloctest()
 			printf ("Error allocating requested memory");
 			return -1;
 		}
+		
+	printf("\n  *******************");
+	printf("\n  List Initialized to Zero");
+	printf("\n  ********************\n");
+
+		printf ("List starts at %p. \n List Contains: ", ptr_data);
+		for ( n=0; n<a; n++ )
+			printf ("%d@%p  ",ptr_data[n],&ptr_data[n]);
 
 		for ( n=0; n<a; n++ )
 		{
-			printf ("Enter number #%d: ",n);
-			scanf ("%d",&ptr_data[n]);
+			ptr_data[n] = rand() % 32000;
 		}
+	
+	printf("\n  *******************");
+	printf("\n  Now List Filled with random numbers");
+	printf("\n  ********************\n");
 
-		printf ("Output: ");
+		printf ("List starts at %p. \n List Contains: ", ptr_data);
 		for ( n=0; n<a; n++ )
-			printf ("%d ",ptr_data[n]);
+			printf ("%d@%p  ",ptr_data[n],&ptr_data[n]);
 
 		int * buffer;
+
 		/*get a initial memory block*/
-		buffer = (int*) l_malloc (10*sizeof(int));
+/*		buffer = (int*) l_malloc (10*sizeof(int));
 		if (buffer==NULL)
 		{
 			printf("Error allocating memory!");
 			return -1;
 		}
+*/
 
+	printf("\n  *******************");
+	printf("\n  Now Reallocating List with realloc growing by factor of 5");
+	printf("\n  ********************\n");
+	
 		/*get more memory with realloc*/
-		buffer = (int*) l_realloc (ptr_data, 10*sizeof(int));
+		buffer = (int*) l_realloc (ptr_data, 5*sizeof(int));
 		if (buffer==NULL)
 		{
 			printf("Error reallocating memory!");
@@ -118,17 +140,19 @@ void malloctest()
 			return -1;
 		}
 
+		printf ("List starts at %p. \n List Contains: ", buffer);
+		for ( n=0; n<a; n++ )
+			printf ("%d@%p  ",buffer[n],&buffer[n]);
 
 	//List Implementation
 	printf("\n\n**********************");
-	printf("\nTesting List Implementation");
+	printf("\nTesting List Operations");
 	printf("\n**********************\n");
 	
 		l_free (buffer);
 		l_free (ptr_data);
+		l_free (ptr);
 		
-			int x, y, value;
-
 	  int first_list = listNew();
 
 //print stuff

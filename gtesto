@@ -1,0 +1,34 @@
+#In new shell
+#ps -a   //see all processes to find pid of interest
+#cat /proc/<pid>/maps   //displays process memory mapping
+set disassembly-flavor intel
+#set follow-fork-mode child # | child or parent
+#catch fork
+#catch exec
+
+#b l_malloc
+#b l_free
+#b l_malloc.GrowHeap
+#b test
+#b l_malloc.NewBestFit
+b l_malloc.BestFit
+
+#display /t $edx
+
+#display /d &HeapInit
+#display /d &HeapSize
+#display /x &HeapStop
+#display /x &HeapStart
+#display /xw $ebp
+#display /xw $edi
+display /xw $esi
+#display /xw $edx
+#display /xw $ecx
+#display /xw $ebx
+#display /xw $eax
+disp /110dw 0x0804b000
+#disp /15xw $esp
+#disp /10xw &ptr
+disp /i $eip
+
+run
