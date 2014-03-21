@@ -1,4 +1,4 @@
-LIST(2)                       Linux Programmer's Manual                      LIST(2)
+LIST(2)                     Linux Programmer's Manual                    LIST(2)
 
 NAME
 
@@ -30,7 +30,7 @@ DESCRIPTION
 
        struc _List3140
        
-       	.above: resd 1	above is the ptr to highest index in the list or
+       	.above: resd 1	     above is the ptr to highest index in the list or
        	                     holds the tail of a list or null if there are no 
        	                     nodes
        	                           
@@ -38,7 +38,7 @@ DESCRIPTION
        	                     value holds the number of nodes in the list or 
        	                     null
        	                           
-       	.below: resd 1	below is the ptr to the lowest index in the list 
+       	.below: resd 1	     below is the ptr to the lowest index in the list 
        	                     or holds the head of a list or null if there are 
        	                     no nodes
        endstruc
@@ -53,9 +53,9 @@ DESCRIPTION
  
        On success, listNew () returns a pointer to the newly allocated list or 
        NULL on error. listInit (), addHead (),  removeHead (), removeTail (), 
-       itemAt (), removeItem (),  and addTail () all returns 0 on failure or 1 on 
-       success. size () returns the number of nodes in the list on success or 0 if 
-       the list is empty. clear () has no return value.
+       itemAt (), removeItem (),  and addTail () all returns 0 on failure or 1
+       on success. size () returns the number of nodes in the list on success 
+       or 0 if the list is empty. clear () has no return value.
        
  NOTES
        
@@ -67,8 +67,8 @@ DESCRIPTION
        not NULL. If the field in this argument is NULL then the function will
        return 0 indicating an error.
        
-       clear () will remove all the nodes that are currently in the list and also
-       set the data fields inside the node to zero. Keep in mind that if nodes are
+       clear () will remove all the nodes that are currently in the list and 
+       also set the data fields inside the node to zero. Keep in mind that if nodes are
        removed with removeHead (), removeTail (), or removeItem () those 
        particular nodes will NOT have their data fields replaced by zeroes because
        they were removed from the list prior to the clear () call.
