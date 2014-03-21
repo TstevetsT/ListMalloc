@@ -1,0 +1,86 @@
+MALLOC(2)                       Linux Programmer's Manual                      MALLOC(2)
+
+NAME
+
+       linked list
+
+SYNOPSIS
+
+       struct _List3140 *listNew();
+       int listInit(struct _List3140 *list);
+       int addHead(struct _List3140 *list, int val);
+       int removeHead(struct _List3140 *list, int *val);
+       int addTail(struct _List3140 *list, int val);
+       int itemAt(struct _List3140 *list, unsigned int n, int *val);
+       int removeItem(struct _List3140 *list, unsigned int n, int *val);
+       unsigned int size(struct _List3140 *list);
+       void clear(struct _List3140 *list);
+       
+       
+DESCRIPTION
+
+       The first node that is allocated in any list will be the admin node.
+       The admin node keeps track of the total number of nodes in the list, 
+       the head of the list (the 0 value of index), and the tail of the list (the 
+       n value of index). The admin node uses the same structure as the
+       regular node. If the values in the admin node are null this means there 
+       are no nodes currently in the list.
+
+                                    Structure of the List
+
+       struc _List3140
+       
+       	.above: resd 1		 above is the ptr to highest index in the list or
+       	                           holds the tail of a list or null if there are no nodes
+       	                           
+       	.value:	resd 1		  value holds the integer value in the node or
+       	                           value holds the number of nodes in the list or null
+       	                           
+       	.below:	resd 1		 below is the ptr to the lowest index in the list or
+       	                           holds the head of a list or null if there are no nodes
+       endstruc
+       
+       Implementation of the linked list uses malloc3140.asm to allocate
+       blocks of memory for the list. Specifically it will use l_malloc () and
+       l_free () as needed. Each node by default consumes 12 bytes. 
+       
+ 
+ RETURN VALUE
+ 
+       On success, listNew () returns a pointer to the newly allocated list or NULL 
+       on error. listInit (), addHead (),  removeHead (), removeTail (), itemAt (), 
+       removeItem (),  and addTail () all returns 0 on failure or 1 on success. size ()
+       returns the number of nodes in the list on success or 0 if the list is empty.
+       clear () has no return value.
+       
+ NOTES
+       
+       listNew () allocates and initializes a new list. For the initialization it uses 
+       listInit () in order to initialize all the values to zero.
+       
+       itemAt (), removeHead (), removeTail (), and removeItem (), will all return
+       the value removed in the ptr given in the *val argument if it is not NULL. If 
+       the field in this argument is NULL then the function will return 0 indicating
+       an error.
+       
+       clear () will remove all the nodes that are currently in the list and also set
+       the data fields inside the node to zero. Keep in mind that if nodes are removed
+       with removeHead (), removeTail (), or removeItem () those particular nodes
+       will NOT have their data fields replaced by zeroes because they were removed
+       from the list prior to the clear () call.
+       
+       The following is a demonstration of how the linked list is implemented and
+       adds nodes for reference. This example assumes that listnew() is being used
+       to allocate and initialize the list.
+       
+       listnew()		addHead() = node 1
+       ----------	
+       |  Tail    |	<- 0x0001
+       |  Size   | <- +1
+       |  Head  | <- 0x0001
+       
+       listnew()		node 1			addHead()
+       ----------	
+       |  0x0001    |	0x0001  0x0002
+       |  1   |  				int val	int val
+       |  0x0001  | 0x0001 0x0002
