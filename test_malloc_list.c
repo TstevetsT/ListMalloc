@@ -19,9 +19,11 @@ struct rec
     		float PI;
     		char A;
 	};
+	int testing;
 	
 	int main()
 	{
+		testing=malloctest();
 		
 //Malloc Implementation
 	printf("**********************");
@@ -30,13 +32,15 @@ struct rec
 		
 
 
-void * ptr[401];
-int toop;
-int i;
-int s;
-int u=0;
-int range=2000;
-int max=50;
+	malloctest()
+	{
+	void * ptr[401];
+	int toop;
+	int i;
+	int s;
+	int u=0;
+	int range=2000;
+	int max=50;
 		for (i =1; i<max; i++)
 		{
 			s = rand() % range+1;
@@ -72,7 +76,9 @@ int max=50;
 			//printf("%p have been freed\n",ptr[i]);
 			ptr[i]=0;
 		}
-		asm("test:);
+		asm("test:");
+	return 0;
+	}
     		
    		int a,n;
 		int * ptr_data;
