@@ -5,16 +5,16 @@ set disassembly-flavor intel
 
 b l_realloc
 
-display /xw $eax
+#display /xw $eax
 display /xw $ebx
-display /xw $ecx
-display /xw $edx
-display /t $edx
+#display /xw $ecx
+#display /xw $edx
+#display /t $edx
 display /xw $edi
 display /xw $esi
-display /xw $ebp
+#display /xw $ebp
 
-disp /42xw 0x0804b000
-disp /15xw $esp
+disp /42xw 0x0804c000
+#disp /15xw $esp
 
 run

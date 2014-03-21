@@ -1,5 +1,8 @@
+; 14 March 2013
+; Assignment 6 list3140.asm
 ; nasm -f elf32 -g list3140.asm
-; gcc -o main list.c list3140.o malloc3140.o -nostdlib -nodefaultlibs -fno-builtin -nostartfiles
+; gcc -o main test_malloc_list.c list3140.o malloc3140.o
+; to run use ./main
 
 
 BITS 32			; USE32

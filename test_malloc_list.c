@@ -1,4 +1,16 @@
-#include<stdio.h>
+/*
+; 14 March 2013
+; Assignment 6 malloc3140.asm
+
+; Compile with:
+; nasm -f elf32 -g malloc3140.asm
+; nasm -f elf32 -g list3140.asm
+; gcc -o main test_malloc_list.c list3140.o malloc3140.o
+
+; to run use ./main
+*/
+
+#include<stdio.h> 
 
 struct rec
 	{
@@ -9,6 +21,11 @@ struct rec
 	
 	int main()
 	{
+		
+//Malloc Implementation
+	printf("**********************");
+	printf("\nTesting Malloc Implementation");
+	printf("\n**********************\n");
 		
 		/* testing of malloc goes here
 		struct rec *ptr_one;
@@ -59,7 +76,7 @@ struct rec
 		}
 
 		/*get more memory with realloc*/
-		buffer = (int*) l_realloc (ptr_data, 10);
+		buffer = (int*) l_realloc (ptr_data, 10*sizeof(int));
 		if (buffer==NULL)
 		{
 			printf("Error reallocating memory!");
@@ -68,21 +85,29 @@ struct rec
 			return -1;
 		}
 
+
+	//List Implementation
+	printf("\n\n**********************");
+	printf("\nTesting List Implementation");
+	printf("\n**********************\n");
+	
 		l_free (buffer);
 		l_free (ptr_data);
 		
 			int x, y, value;
 
 	  int first_list = listNew();
-///////////////////////////////////////////////////////////////////////////////
-      y = 0;/////////////////////////////////////////////////////////////////
-     	printf ("Size of List: %d\n", (x = size(first_list)));
-      printf  ("List at beginning:\n");/////////////////////////////
-      while (y < x){////////////////////////////////////////////////////
-    	itemAt(first_list, y, &value);///////////////////////////////
-    	printf("%d;  ", value); ////////////////////////////////////////
-    	y++;}      printf  ("\n\n");////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////
+
+//print stuff
+      y = 0;
+      printf ("Size of listNew():    %d\n", (x = size(first_list)));  
+      
+      printf  ("Nodes in List at beginning:    \n");
+      while (y < x){
+    	itemAt(first_list, y, &value);
+    	printf("%d;  ", value);
+    	y++;}    
+//done with print job
     
     while (x <= 2){
     	if (addHead (first_list, x) == NULL) return -1;
@@ -97,41 +122,41 @@ struct rec
     	}
     addTail (first_list, 99999);
         	
-/////////////////////////////////////////////////////////////////////////////
+//print stuff
     	printf ("Size of List: %d\n", (x = size(first_list)));
-      y = 0;////////////////////////////////////////////////////////////////
-      printf  ("List after addHead and addTail:\n");////////
-      while (y < x){///////////////////////////////////////////////////
-    	itemAt(first_list, y, &value);//////////////////////////////
-    	printf("%d;  ", value); ///////////////////////////////////////
-    	y++;}      printf  ("\n\n");///////////////////////////////////
-////////////////////////////////////////////////////////////////////////////
+      y = 0;
+      printf  ("List after addHead and addTail:     ");
+      while (y < x){
+    	itemAt(first_list, y, &value);
+    	printf("%d;  ", value); 
+    	y++;}      printf  ("\n");
+//done with print job
 
     removeItem(first_list, 2, &value);
     removeTail(first_list, &value);
     removeHead(first_list, &value);
     
-///////////////////////////////////////////////////////////////////////////////////////
-    	printf ("Size of List: %d\n", (x = size(first_list)));//////////
-      y = 0;/////////////////////////////////////////////////////////////////////////
-      printf  ("List after removing tail, head, and item(2):\n");
-      while (y < x){////////////////////////////////////////////////////////////
-    	itemAt(first_list, y, &value);///////////////////////////////////////
-    	printf("%d;  ", value); ///////////////////////////////////////////////
-    	y++;}      printf  ("\n\n");////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////
+//print stuff
+    	printf ("Size of List: %d\n", (x = size(first_list)));
+      y = 0;
+      printf  ("List after removing item (2) tail, and head:    ");
+      while (y < x){
+    	itemAt(first_list, y, &value);
+    	printf("%d;  ", value);
+    	y++;}      printf  ("\n");
+//done with print job
         
     clear(first_list);
     
-/////////////////////////////////////////////////////////////////////////////
-    	printf ("Size of List: %d\n", (x = size(first_list)));
-      y = 0;///////////////////////////////////////////////////////////////
-      printf  ("List at end:\n");////////////////////////////////////
-      while (y < x){//////////////////////////////////////////////////
-    	itemAt(first_list, y, &value);/////////////////////////////
-    	printf("%d;  ", value); //////////////////////////////////////
-    	y++;}      printf  ("\n\n");//////////////////////////////////
-///////////////////////////////////////////////////////////////////////////
+//print stuff
+    	printf ("Size of List after clear: %d\n", (x = size(first_list)));
+      y = 0;
+      printf  ("Nodes in List after clear():  ");
+      while (y < x){
+    	itemAt(first_list, y, &value);
+    	printf("%d;  ", value); 
+    	y++;}      printf  ("\n");
+//done with print job
 
    	return 0;
 	}

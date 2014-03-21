@@ -1,7 +1,8 @@
 ; 14 March 2013
 ; Assignment 6 malloc3140.asm
-;; nasm -f elf32 -g malloc3140.asm
-; gcc -o main main.c list3140.o malloc3140.o -nostdlib -nodefaultlibs -fno-builtin -nostartfiles
+; nasm -f elf32 -g malloc3140.asm
+; gcc -o main test_malloc_list.c list3140.o malloc3140.o
+; to run use ./main
 
 BITS 32					; USE32
 
@@ -253,6 +254,7 @@ l_realloc:
 	cmp eax, ecx
 		jl .reallocPtrSmaller
 		mov ebx, ecx
+		sub ebx, 4
 		xor ecx, ecx	;initialize counter
 		jmp .top
 		
