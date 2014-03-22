@@ -14,6 +14,7 @@ global itemAt		;int itemAt(struct _List3140 *list, unsigned int n, int *val)
 global removeItem	;int removeItem(struct _List3140 *list, unsigned int n, int *val)
 global size		;unsigned int size(struct _List3140 *list)
 global clear		;void clear(struct _List3140 *list)
+global List3140Size 	;struct _List3140 (ie sizeof(struct _List3140))
 
 extern l_malloc		;void *l_malloc(unsigned int size)
 extern l_free ;void l_free(void *ptr)
@@ -27,14 +28,12 @@ struc _List3140			;defined structure
 	.above: resd 1		;*ptr to above value or null for no nodes
 	.value:	resd 1		;integer value
 	.below:	resd 1		;*ptr to the below value or null for end
-	.testvalue: resb 3
 endstruc
 
 ;A global const that holds the size of a 
 ;struct _List3140 (ie sizeof(struct _List3140))
 ;extern const unsigned int List3140Size
 
-global List3140Size 
 List3140Size equ _List3140_size
 
 ;Allocate AND Initialize a new list
