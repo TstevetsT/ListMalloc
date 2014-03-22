@@ -47,8 +47,19 @@ DESCRIPTION
        utilized or not.
        
        00000000 - indicates the block is free
-       00000001 - indicates the block is allocated
-       
+       00000001 - indicates the block is allocated 
+
+       Growing the heap.
+       When a request for memory comes in, l_malloc will walk the blocks of the 
+       trying to find a block that is free and the exact size.  If found headers          
+       are updated and pointer is returned to caller immediatly.  If a larger free        
+       block is encountered, l_malloc stows it's pointer in ebx and continues
+       walking the stack.  If another block is found that is as big as requested
+       size but smaller than pointer held in ebx then ebx pointer is replaced.  If
+       bottom of heap has been reached and ebx still contains a null pointer a big
+       enough block was not found and the heap must be grown.  The heap is expanded       
+       by the size of the requested block.       
+
        When a block of memory is freed the entire heap will be checked for blocks
        to coalesce due to the absence of a previous pointer and next pointer within
        the header information for a given block.
@@ -79,7 +90,10 @@ DESCRIPTION
        
  NOTES
  
-       The priority for malloc is ensuring the maximum amount of space available
-       for the calling process/function.  Usable space has more priority than
-       speed, and this resulted in a smaller header but more overhead to process
-       changes to the heap during coalescence (consolidating free space).
+	The priority for l_malloc's heap implementation is to maximize available
+	storage by minimizing overhead.  For this reason the header is limited to 
+	four bytes.  The disadvantage to this is the heap must be walked from top
+	to freed location during l_free inorder to coelesce the prior block.
+ 
+ TESTING
+	The software 
