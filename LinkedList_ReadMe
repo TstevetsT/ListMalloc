@@ -65,7 +65,8 @@ DESCRIPTION
        itemAt (), removeHead (), removeTail (), and removeItem (), will all
        return the value removed in the ptr given in the *val argument if it is
        not NULL. If the field in this argument is NULL then the function will
-       return 0 indicating an error.
+       return 0 indicating an error. removeItem () is not intended to be used
+       on the head or tail so it may break the list or cause errors.
        
        clear () will remove all the nodes that are currently in the list and 
        also set the data fields inside the node to zero. Keep in mind that if 
