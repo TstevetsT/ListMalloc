@@ -30,7 +30,7 @@ DESCRIPTION
 
        struc _List3140
        
-       	.above: resd 1	     above is the ptr to highest index in the list or
+       	.above: resd 1       above is the ptr to highest index in the list or
        	                     holds the tail of a list or null if there are no 
        	                     nodes
        	                           
@@ -38,7 +38,7 @@ DESCRIPTION
        	                     value holds the number of nodes in the list or 
        	                     null
        	                           
-       	.below: resd 1	     below is the ptr to the lowest index in the list 
+       	.below: resd 1       below is the ptr to the lowest index in the list 
        	                     or holds the head of a list or null if there are 
        	                     no nodes
        endstruc
@@ -68,17 +68,18 @@ DESCRIPTION
        return 0 indicating an error.
        
        clear () will remove all the nodes that are currently in the list and 
-       also set the data fields inside the node to zero. Keep in mind that if nodes are
-       removed with removeHead (), removeTail (), or removeItem () those 
-       particular nodes will NOT have their data fields replaced by zeroes because
-       they were removed from the list prior to the clear () call.
+       also set the data fields inside the node to zero. Keep in mind that if 
+       nodes are removed with removeHead (), removeTail (), or removeItem () 
+       those particular nodes will NOT have their data fields replaced by
+       zeroes because they were removed from the list prior to the clear () 
+       call.
        
-       The following is a demonstration of how the linked list is implemented and
-       adds nodes for reference. This example assumes that listnew() is being used
-       to allocate and initialize the list.
+       The following is a demonstration of how the linked list is implemented 
+       and adds nodes for reference. This example assumes that listnew() is 
+       being used to allocate and initialize the list.
        
-       listnew() then addHead(): Updates the admin node with the first node being
-       both the head, tail, and incrementing the size of the list.
+       listnew() then addHead(): Updates the admin node with the first node
+       being both the head, tail, and incrementing the size of the list.
        
            admin    |------node 1
        ----------   |  ------------  
@@ -88,10 +89,10 @@ DESCRIPTION
        ----------      ------------
        
        
-       addHead(): Updates the admin node with the head node now being the newest
-       added node (in this example node 2), and then links the new head node to
-       the previous head node. It also increases the size of the list that is
-       tracked by the admin node.
+       addHead(): Updates the admin node with the head node now being the 
+       newest added node (in this example node 2), and then links the new 
+       head node to the previous head node. It also increases the size of the 
+       list that is tracked by the admin node.
                                         |-------------------
            admin             node 1 -----                  |
                                          ------node 2      |
