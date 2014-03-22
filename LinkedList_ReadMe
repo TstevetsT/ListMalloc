@@ -30,7 +30,7 @@ DESCRIPTION
 
        struc _List3140
        
-       	.above: resd 1	above is the ptr to highest index in the list or
+       	.above: resd 1	     above is the ptr to highest index in the list or
        	                     holds the tail of a list or null if there are no 
        	                     nodes
        	                           
@@ -38,7 +38,7 @@ DESCRIPTION
        	                     value holds the number of nodes in the list or 
        	                     null
        	                           
-       	.below: resd 1	below is the ptr to the lowest index in the list 
+       	.below: resd 1	     below is the ptr to the lowest index in the list 
        	                     or holds the head of a list or null if there are 
        	                     no nodes
        endstruc
