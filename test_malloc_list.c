@@ -21,7 +21,7 @@ struct rec
     		char A;
 	};
 
-int max=20,toop,i,s,u=0,range=2000;
+int max=20,toop,i,s,u=0,range=100;
 void * ptr[40]; //MUST be max times 2 to prevent memory leakage
 	
 void malloctest()
@@ -34,7 +34,7 @@ void malloctest()
 			if (i>1)
 			{
 				toop=ptr[i]-ptr[i-1];
-				u=s+u;
+				u=ptr[i]-ptr[1];
 				printf("   Byte Diff: %i TotalBytesUsed: %i\n", toop, u);
 			}
 			else 
@@ -57,7 +57,7 @@ void malloctest()
 			ptr[i] = l_malloc(s);
 	    		printf("Pointer: %p Size: %i\n  ", ptr[i], s);
 		}
-
+		
 		for (i =1; i<max; i++)
 		{	
     			l_free(ptr[i]);
@@ -117,21 +117,13 @@ void malloctest()
 
 		int * buffer;
 
-		/*get a initial memory block*/
-/*		buffer = (int*) l_malloc (10*sizeof(int));
-		if (buffer==NULL)
-		{
-			printf("Error allocating memory!");
-			return -1;
-		}
-*/
 
 	printf("\n  *******************");
 	printf("\n  Now Reallocating List");
 	printf("\n  ********************\n");
 	
 		/*get more memory with realloc*/
-		buffer = (int*) l_realloc (ptr_data, sizeof(int));
+		buffer = (int*) l_realloc (ptr_data, 10*sizeof(int));
 		if (buffer==NULL)
 		{
 			printf("Error reallocating memory!");
@@ -157,6 +149,7 @@ void malloctest()
 		//	printf("%p has been freed. ptr=%i\n",ptr[i], i);
 			ptr[i]=0;
 		}
+		asm("test:");
 		
 	  int first_list = listNew();
 
