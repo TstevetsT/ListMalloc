@@ -13,6 +13,7 @@
 #include<stdio.h> 
 #include<stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 struct rec
 	{
@@ -21,7 +22,7 @@ struct rec
     		char A;
 	};
 
-int max=20,toop,i,s,u=0,range=100;
+int max=20,toop,i,s,u=0,range=2000;
 void * ptr[40]; //MUST be max times 2 to prevent memory leakage
 
 void malloctest()
@@ -29,13 +30,13 @@ void malloctest()
 		for (i =1; i<max; i++)
 		{
 			s = rand() % range+1;
-			ptr[i] = l_malloc(s);
+			ptr[i] = (int*) l_malloc(s);
 	    		printf("Pointer: %p Size: %i", ptr[i], s);
 			if (i>1)
 			{
 				toop=ptr[i]-ptr[i-1];
 				u=ptr[i]-ptr[1];
-				printf("   Byte Diff: %i TotalBytesUsed: %i\n", toop, u);
+				printf("   PrevBlockSize: %i TotalUsedMem: %i\n", toop, u);
 			}
 			else 
 			{
@@ -54,20 +55,24 @@ void malloctest()
 		for (i =max+1; i<max*2; i++)
 		{
 			s = rand() % range+1;
-			ptr[i] = l_malloc(s);
+			ptr[i] = (int*) l_malloc(s);
 	    		printf("Pointer: %p Size: %i\n  ", ptr[i], s);
 		}
 		
-		for (i =1; i<max; i++)
+/*		for (i =1; i<max; i++)
 		{	
     			l_free(ptr[i]);
 			printf("%p has been freed. ptr=%i\n",ptr[i], i);
 			ptr[i]=0;
 		}
+*/
+
 }
 
-	int main()
+	int main(int argc, char **argv[])
 	{
+		void * InitialBreak=sbrk(0);
+		printf("\n %p is the initial break \n", InitialBreak);
 		srand (time(NULL));     //creates a seed for rand using system clock
 //Malloc Implementation Test
 		printf("**********************");
@@ -84,7 +89,7 @@ void malloctest()
    		int a,n,x,y,value;
 		int * ptr_data;
 
-		printf ("Enter number of integers in list: ");
+		printf ("Enter number of 4 byte Cells: ");
 		scanf ("%d",&a);
 
 		ptr_data = (int*) l_calloc ( a,sizeof(int) );
@@ -95,7 +100,7 @@ void malloctest()
 		}
 
 	printf("\n  *******************");
-	printf("\n  List Initialized to Zero");
+	printf("\n  Calloc Cells Initialized to Zero");
 	printf("\n  ********************\n");
 
 		printf ("List starts at %p. \n List Contains: ", ptr_data);
@@ -108,7 +113,7 @@ void malloctest()
 		}
 
 	printf("\n  *******************");
-	printf("\n  Now List Filled with random numbers");
+	printf("\n  Now Calloc Cells are Filled with random numbers");
 	printf("\n  ********************\n");
 
 		printf ("List starts at %p. \n List Contains: ", ptr_data);
@@ -122,8 +127,11 @@ void malloctest()
 	printf("\n  Now Reallocating List");
 	printf("\n  ********************\n");
 
+		printf ("Enter number of Calloc Cells to Reallocate: ");
+		scanf ("%d",&a);
+		
 		/*get more memory with realloc*/
-		buffer = (int*) l_realloc (ptr_data, (10 * sizeof(int)));
+		buffer = (int*) l_realloc (ptr_data, (a * sizeof(int)));
 		
 		if (buffer==NULL)
 		{
@@ -133,15 +141,14 @@ void malloctest()
 			return -1;
 		}
 
-		printf ("List starts at %p. \n List Contains: ", buffer);
+		printf ("\n List starts at %p. \n List Contains: ", buffer);
 		for ( n=0; n<a; n++ )
 			printf ("%d@%p  ",buffer[n],&buffer[n]);
+		printf ("\n \n \n");
 
-	//List Implementation
-	printf("\n\n**********************");
-	printf("\nTesting List Operations");
-	printf("\n**********************\n");
-
+//Free all previous malloc blocks
+		void * MidBreak=sbrk(0);
+		printf("\n %p is the break before freeing \n", MidBreak);
 		l_free (buffer);
 		l_free (ptr_data);
 		for (i =1; i<max*2; i++)
@@ -150,8 +157,16 @@ void malloctest()
 		//	printf("%p has been freed. ptr=%i\n",ptr[i], i);
 			ptr[i]=0;
 		}
+		void * FinalBreak=sbrk(0);
+		printf("\n %p is the initial break \n", InitialBreak);
+		printf("\n %p is the final break \n", FinalBreak);
 
-		asm("test:");
+
+	//List Implementation
+	printf("\n\n**********************");
+	printf("\nTesting List Operations");
+	printf("\n**********************\n");
+
 
 	  int first_list = listNew();
 
@@ -167,14 +182,14 @@ void malloctest()
 //done with print job
     
     while (x <= 2){
-    	if (addHead (first_list, x) == NULL) return -1;
+    	if (((int*) addHead (first_list, x)) == NULL) return -1;
     		x++;
     	}
 		addHead (first_list, 11111);
 
     x = 991;
     while (x <= 991){
-    	if (addTail (first_list, x) == NULL) return -1;
+    	if (((int*) addTail (first_list, x)) == NULL) return -1;
     		x++;
     	}
     addTail (first_list, 99999);
