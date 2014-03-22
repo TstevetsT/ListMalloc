@@ -7,8 +7,12 @@ NAME
 SYNOPSIS
 
        void *l_malloc (unsigned int size);
+       void *l_calloc(unsigned int nmemb, unsigned int size);
+       void *l_realloc(void *ptr, unsigned int size);
+       void l_free(void *ptr);
        
 DESCRIPTION
+
 
               Blocks
        ---------------------    <-- Memory Ptr of Header
@@ -37,11 +41,29 @@ DESCRIPTION
        to coalesce due to the absence of a previous pointer and next pointer within
        the header information for a given block.
        
+       l_calloc() and l_realloc() are extensions of l_malloc(). When one of these
+       companion functions are called l_malloc() will be invoked. l_calloc ()
+       allocates a block of memory and then the resulting block of memory is filled
+       with zeroes. l_realloc() allocates a new block of memory when the first 
+       argument is null of the requested size. If a pointer is passed to l_realloc()
+       in the first argument it will allocate a block of memory of a the specified
+       size in argument two and then copy the first argument pointer into the new 
+       allocated block of memory. If the new memory block you copy into is smaller
+       than the previous pointer then part of the copy will not be successful.
+       
+       l_free() is used to free blocks of memory that have been allocated by
+       l_malloc(). When l_free() frees a block of memory it will then merge the
+       entire heap starting from the highest address (or the beginning of the heap).
+       If l_free() finds that the entire heap is empty when the caller invokes
+       l_free() it will free the entire heap back to the kernel.
+       
  
  RETURN VALUE
  
-       On success, l_malloc() returns a pointer to the reserved block.  On 
-       error, NULL is returned.
+       On success, l_malloc(), l_calloc(), l_realloc(), returns a pointer to a
+       reserved block of memory in the heap.  On error or failure, NULL is returned. 
+       On success, l_free() release the memory pointed to by ptr. If the ptr 
+       is NULL no action is taken.
        
  NOTES
  
