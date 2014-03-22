@@ -127,11 +127,11 @@ void malloctest()
 */
 
 	printf("\n  *******************");
-	printf("\n  Now Reallocating List with realloc growing by factor of 5");
+	printf("\n  Now Reallocating List");
 	printf("\n  ********************\n");
 	
 		/*get more memory with realloc*/
-		buffer = (int*) l_realloc (ptr_data, 5*sizeof(int));
+		buffer = (int*) l_realloc (ptr_data, sizeof(int));
 		if (buffer==NULL)
 		{
 			printf("Error reallocating memory!");
@@ -151,7 +151,12 @@ void malloctest()
 	
 		l_free (buffer);
 		l_free (ptr_data);
-		l_free (ptr);
+		for (i =1; i<max*2; i++)
+		{	
+    			l_free(ptr[i]);
+		//	printf("%p has been freed. ptr=%i\n",ptr[i], i);
+			ptr[i]=0;
+		}
 		
 	  int first_list = listNew();
 
