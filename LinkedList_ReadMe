@@ -80,7 +80,7 @@ DESCRIPTION
        listnew() then addHead(): Updates the admin node with the first node being
        both the head, tail, and incrementing the size of the list.
        
-           list     |------node 1
+           admin    |------node 1
        ----------   |  ------------  
        |  0x0001 |<-|->|  0x0001  |  
        |     1   |  |  |  int val |  
@@ -93,7 +93,7 @@ DESCRIPTION
        the previous head node. It also increases the size of the list that is
        tracked by the admin node.
                                      |------------------
-           list           node 1 -----                 |
+           admin          node 1 -----                 |
                                       ------node 2     |
        ----------	  ------------   |  ------------  |
        |  0x0001 |	  |  0x0001  |   |  |  0x0001  |<--
@@ -106,7 +106,7 @@ DESCRIPTION
        the new node (in this example node 3) links itself to the previously
        tracked tail. This also increases the size of the list.
                               |-------------------------------------------
-           list            node 1           node 2    --------node 3     |
+           admin           node 1           node 2    --------node 3     |
                     ----------------------------------|                  |
        ----------   |   ------------  |   ------------     ------------  |
        |  0x0003 |<-|   |  0x0003  |<-|   |  0x0001  |     |  0x0003  |  |
