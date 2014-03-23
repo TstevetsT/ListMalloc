@@ -21,19 +21,8 @@ struct rec
 	};
 	int testing;
 	
-	int main()
-	{
-		testing=malloctest();
-		
-//Malloc Implementation
-	printf("**********************");
-	printf("\nTesting Malloc Implementation");
-	printf("\n**********************\n");
-		
-
-
-	malloctest()
-	{
+void malloctest()
+{
 	void * ptr[401];
 	int toop;
 	int i;
@@ -77,8 +66,15 @@ struct rec
 			ptr[i]=0;
 		}
 		asm("test:");
-	return 0;
-	}
+}
+	
+	int main()
+	{
+//Malloc Implementation
+		printf("**********************");
+		printf("\nTesting Malloc Implementation");
+		printf("\n**********************\n");
+		malloctest();	
     		
    		int a,n;
 		int * ptr_data;
