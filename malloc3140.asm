@@ -62,17 +62,15 @@ l_malloc:
 	;BlockBigEnough
 		cmp [esi], edi
 		jl .NextBlock
-	.BestFit:
+	;BestFit
 		cmp ebx, 0		;Is there a prev best fit?
 		je .NewBestFit
 		mov eax, [ebx]		;Is current location a better
 		cmp eax, [esi]  	; fit than prev best fit?
-		jge .NewBestFit
+		jl .NewBestFit
 		jmp .NextBlock		
-		.NewBestFit:
+		.NewBestFit:		
 		mov ebx, esi		;make current location best fit
-		cmp eax, [esi]
-		je .FixHeaders		
 	.NextBlock:
 		mov eax, [esi]	;Saves Current Block Size in eax
 		and eax, 0xFFFFFFFE  ;Mask out the inuse Bit
@@ -267,6 +265,7 @@ l_realloc:
 		jmp .top
 		
 	.reallocPtrSmaller:
+		sub eax, 4
 		mov ebx, eax
 		xor ecx, ecx	;initialize counter
 	
@@ -398,4 +397,4 @@ HeapSize dd 0		;Heap Size
 HeapInit db 0		;Flag indicates whether a heap has been created
 
 section .rodata
-HEAPMAX dd 0xFA0 	
+HEAPMAX dd 0xFA0	

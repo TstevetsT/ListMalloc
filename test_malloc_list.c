@@ -23,7 +23,7 @@ struct rec
 
 int max=20,toop,i,s,u=0,range=2000;
 void * ptr[40]; //MUST be max times 2 to prevent memory leakage
-	
+
 void malloctest()
 {
 		for (i =1; i<max; i++)
@@ -65,7 +65,7 @@ void malloctest()
 			ptr[i]=0;
 		}
 }
-	
+
 	int main()
 	{
 		srand (time(NULL));     //creates a seed for rand using system clock
@@ -79,7 +79,7 @@ void malloctest()
 	printf("\n\n**********************");
 	printf("\nDemonstrating Calloc  ");
 	printf("\n**********************\n");
-	
+
     		
    		int a,n,x,y,value;
 		int * ptr_data;
@@ -93,7 +93,7 @@ void malloctest()
 			printf ("Error allocating requested memory");
 			return -1;
 		}
-		
+
 	printf("\n  *******************");
 	printf("\n  List Initialized to Zero");
 	printf("\n  ********************\n");
@@ -106,7 +106,7 @@ void malloctest()
 		{
 			ptr_data[n] = rand() % 32000;
 		}
-	
+
 	printf("\n  *******************");
 	printf("\n  Now List Filled with random numbers");
 	printf("\n  ********************\n");
@@ -129,9 +129,9 @@ void malloctest()
 	printf("\n  *******************");
 	printf("\n  Now Reallocating List");
 	printf("\n  ********************\n");
-	
+
 		/*get more memory with realloc*/
-		buffer = (int*) l_realloc (ptr_data, sizeof(int));
+		buffer = (int*) l_realloc (ptr_data, (10 * sizeof(int)));
 		if (buffer==NULL)
 		{
 			printf("Error reallocating memory!");
@@ -148,7 +148,7 @@ void malloctest()
 	printf("\n\n**********************");
 	printf("\nTesting List Operations");
 	printf("\n**********************\n");
-	
+
 		l_free (buffer);
 		l_free (ptr_data);
 		for (i =1; i<max*2; i++)
@@ -157,7 +157,7 @@ void malloctest()
 		//	printf("%p has been freed. ptr=%i\n",ptr[i], i);
 			ptr[i]=0;
 		}
-		
+
 	  int first_list = listNew();
 
 //print stuff
@@ -176,7 +176,7 @@ void malloctest()
     		x++;
     	}
 		addHead (first_list, 11111);
-		
+
     x = 991;
     while (x <= 991){
     	if (addTail (first_list, x) == NULL) return -1;
