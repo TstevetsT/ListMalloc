@@ -96,4 +96,34 @@ DESCRIPTION
 	to freed location during l_free inorder to coelesce the prior block.
  
  TESTING
-	The software 
+	l_malloc is throughly tested by the test_malloc_list.c program.  It first
+	displays the inital break.  Then it has a loop that calls l_malloc twenty 
+	times requesting between 1 and 2000 bytes.  Program has also successfully 
+	been tested for block sizes up to 32 KBytes. The program displays the returned
+	pointer, the requested block size, the previous block size (reflecting 4 byte
+	overhead + upto 3 additional bytes for 4 byte allignment), and a running used
+	heap total.  Due to the method of growing the heap utilized (adding requested
+	size to the bottom of the current heap) when allocation is not contiguous 
+	negative values may occur.  Next, ten randomly selected blocks will be freed.
+	Since blocks are randomly selected from previously allocated blocks, the same
+	block may be selected more than one time demonstrating that freeing an already
+	freed block will not cause any errors.  Then twenty more l_malloc calls are 
+	made for random sizes.  Comparison of freed blocks and new pointers
+	demonstrates successful reallocation of previously freed blocks.  
+	
+	l_calloc is demonstrated by allocating a user defined length of 4 Byte 
+	blocks.  The number of requested cells are shown in a bytes@pointer format.  
+	It is shown that cells are zeroized and contiguous.  Next, data is randomly 
+	initialized to show that cells can be successfully accessed.  
+	
+	l_realloc is demonstrated by reallocating the list from l_calloc.  User 
+	defines the length of the new list.  l_realloc will demonstrate l_calloc
+	data moved to new address and can be shorter, the same length, or longer
+	(new cells initialized to zero) than previous l_calloc list.  
+	
+	l_free success is demonstrated by showing initial break, break before
+	freeing, and break after freeing.  Initial and after freeing break is 
+	identical.
+	
+	list operations are demonstrated to all be successfull. 
+	
